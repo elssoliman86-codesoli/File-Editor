@@ -57,13 +57,11 @@ jobs:
         run: |
           C="$PUB_CACHE/hosted/pub.dev"
           FP="$(ls -d "$C"/file_picker-* | sort -V | tail -n 1)"
-          echo "=== PROBE dir: $FP"
-          echo "=== PROBE changelog (head)"; sed -n '1,70p' "$FP/CHANGELOG.md"
-          echo "=== PROBE files"; ls "$FP/lib" "$FP/lib/src" 2>&1
-          echo "=== PROBE pickFiles declarations"; grep -rn "pickFiles" "$FP/lib" | head -20
-          echo "=== PROBE FilePicker class header"; grep -rn "class FilePicker" "$FP/lib" | head
-          echo "=== PROBE README usage"; grep -n -B2 -A12 "pickFiles" "$FP/README.md" | head -70
-          echo "=== PROBE PlatformFile fields"; grep -rnE "^\s*(final|late final) " "$FP/lib/src/platform_file.dart" | head -20
+          echo "=== PROBE file_picker.dart 1-120"; sed -n '1,120p' "$FP/lib/src/file_picker.dart"
+          PI="$(ls -d "$C"/file_picker_platform_interface-* | sort -V | tail -n 1)"
+          echo "=== PROBE platform_interface: $PI"
+          F="$(grep -rl "class PlatformFile" "$PI/lib" | head -n 1)"; echo "file: $F"
+          grep -nE "^\s*(final |late |Future<|Stream<|Uint8List|String|int |bool |static |factory |const )" "$F" | head -50
       - name: Auto-format (TEMPORARY one-time step, removed after the commit)
         if: github.ref == 'refs/heads/fix/apk-build-root-cause'
         run: |

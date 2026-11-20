@@ -4,7 +4,6 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart' as mui;
 
-import 'core/providers/app_providers.dart';
 import 'core/router/app_router.dart';
 import 'core/services/external_document_service.dart';
 import 'features/onboarding/onboarding_page.dart';

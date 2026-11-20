@@ -57,39 +57,59 @@ class WorkspaceRepository {
     bool multiple = false,
     bool imagesOnly = false,
   }) async {
-    final result = await FilePicker.platform.pickFiles(
-      allowMultiple: multiple,
-      withData: true,
-      type: FileType.custom,
-      allowedExtensions: imagesOnly
-          ? const ['jpg', 'jpeg', 'png', 'webp']
-          : const [
-              'docx',
-              'dotx',
-              'docm',
-              'pdf',
-              'txt',
-              'md',
-              'json',
-              'xml',
-              'html',
-              'csv',
-              'log',
-              'jpg',
-              'jpeg',
-              'png',
-              'webp',
-            ],
-    );
-    if (result == null) return const [];
+    final extensions = imagesOnly
+        ? const ['jpg', 'jpeg', 'png', 'webp']
+        : const [
+            'docx',
+            'dotx',
+            'docm',
+            'pdf',
+            'txt',
+            'md',
+            'json',
+            'xml',
+            'html',
+            'csv',
+            'log',
+            'jpg',
+            'jpeg',
+            'png',
+            'webp',
+          ];
+    // file_picker >= 12: static API, no FilePickerResult and no `withData`.
+    // `pickFiles` returns an empty list when the user cancels.
+    final List<PlatformFile> picked;
+    if (multiple) {
+      picked = await FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: extensions,
+      );
+    } else {
+      final single = await FilePicker.pickFile(
+        type: FileType.custom,
+        allowedExtensions: extensions,
+      );
+      picked = single == null ? const <PlatformFile>[] : [single];
+    }
     final records = <DocumentRecord>[];
-    for (final file in result.files) {
-      Uint8List? bytes = file.bytes;
-      if (bytes == null && file.path != null)
-        bytes = await File(file.path!).readAsBytes();
-      if (bytes == null) continue;
-      if (bytes.length > 64 * 1024 * 1024)
+    for (final file in picked) {
+      const limit = 64 * 1024 * 1024;
+      // Check the size before reading so an oversized file is never loaded.
+      final length = await file.length();
+      if (length != null && length > limit) {
         throw const DocumentFailure('File exceeds the 64 MB import limit.');
+      }
+      final Uint8List bytes;
+      try {
+        bytes = await file.readAsBytes();
+      } on Object {
+        final path = file.path;
+        if (path == null) rethrow;
+        bytes = await File(path).readAsBytes();
+      }
+      if (bytes.length > limit) {
+        throw const DocumentFailure('File exceeds the 64 MB import limit.');
+      }
       final kind = DocumentKind.fromName(
         file.name,
         header: bytes.take(8).toList(),
