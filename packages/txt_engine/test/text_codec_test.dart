@@ -7,9 +7,11 @@ void main() {
 
   for (final encoding in ['utf-8', 'utf-16le', 'utf-16be', 'windows-1256']) {
     test('round-trip $encoding with BOM and CRLF', () {
+      // The sample must contain a line break, otherwise there is no line
+      // ending to convert to CRLF and nothing for EOL detection to find.
       final sample = encoding == 'windows-1256'
-          ? 'السلام عليكم - Midad 2026'
-          : arabic;
+          ? 'السلام عليكم - Midad 2026\nالسطر الثاني'
+          : '$arabic\nالسطر الثاني';
       final bytes = codec.encode(
         sample,
         encoding: encoding,
@@ -18,9 +20,11 @@ void main() {
       );
       final decoded = codec.decode(bytes);
       expect(decoded.encoding, encoding);
-      expect(decoded.hadBom, isTrue);
+      // Single-byte code pages such as windows-1256 have no byte-order mark.
+      expect(decoded.hadBom, encoding != 'windows-1256');
       expect(decoded.eol, '\r\n');
-      expect(decoded.text, sample);
+      // decode keeps the original line endings; compare modulo CRLF.
+      expect(decoded.text.replaceAll('\r\n', '\n'), sample);
     });
   }
 
@@ -35,8 +39,11 @@ void main() {
 
   test('ISO-8859-6 round-trip and invalid character handling', () {
     const sample = 'العربية English 123';
+    final encoded = codec.encode(sample, encoding: 'iso-8859-6');
+    // ISO-8859-6 and windows-1256 overlap, so auto-detection cannot tell them
+    // apart; the user (or caller) selects ISO-8859-6 explicitly.
     expect(
-      codec.decode(codec.encode(sample, encoding: 'iso-8859-6')).text,
+      codec.decode(encoded, requestedEncoding: 'iso-8859-6').text,
       sample,
     );
     expect(
