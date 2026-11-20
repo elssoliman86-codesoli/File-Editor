@@ -42,10 +42,7 @@ void main() {
     final encoded = codec.encode(sample, encoding: 'iso-8859-6');
     // ISO-8859-6 and windows-1256 overlap, so auto-detection cannot tell them
     // apart; the user (or caller) selects ISO-8859-6 explicitly.
-    expect(
-      codec.decode(encoded, requestedEncoding: 'iso-8859-6').text,
-      sample,
-    );
+    expect(codec.decode(encoded, requestedEncoding: 'iso-8859-6').text, sample);
     expect(
       () => codec.encode('٢٠٢٦', encoding: 'iso-8859-6'),
       throwsFormatException,
