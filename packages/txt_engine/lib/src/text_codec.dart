@@ -95,18 +95,36 @@ class TextCodec {
   }
 
   List<int> _stripBom(List<int> bytes, String encoding) {
-    if (encoding == 'utf-8' && bytes.length >= 3) return bytes.sublist(3);
-    if (encoding.startsWith('utf-16') && bytes.length >= 2) {
+    if (encoding == 'utf-8' &&
+        bytes.length >= 3 &&
+        bytes[0] == 0xEF &&
+        bytes[1] == 0xBB &&
+        bytes[2] == 0xBF) {
+      return bytes.sublist(3);
+    }
+    if (encoding == 'utf-16le' &&
+        bytes.length >= 2 &&
+        bytes[0] == 0xFF &&
+        bytes[1] == 0xFE) {
+      return bytes.sublist(2);
+    }
+    if (encoding == 'utf-16be' &&
+        bytes.length >= 2 &&
+        bytes[0] == 0xFE &&
+        bytes[1] == 0xFF) {
       return bytes.sublist(2);
     }
     return bytes;
   }
 
   bool _hasBom(List<int> bytes) {
-    if (bytes.length >= 3 && bytes[0] == 0xEF) return true;
-    return bytes.length >= 2 &&
-        ((bytes[0] == 0xFF && bytes[1] == 0xFE) ||
-            (bytes[0] == 0xFE && bytes[1] == 0xFF));
+    return (bytes.length >= 3 &&
+            bytes[0] == 0xEF &&
+            bytes[1] == 0xBB &&
+            bytes[2] == 0xBF) ||
+        (bytes.length >= 2 &&
+            ((bytes[0] == 0xFF && bytes[1] == 0xFE) ||
+                (bytes[0] == 0xFE && bytes[1] == 0xFF)));
   }
 
   List<int>? _bom(String encoding, bool include) {
