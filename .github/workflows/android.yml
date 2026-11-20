@@ -55,17 +55,11 @@ jobs:
       - name: Gradle probe (TEMPORARY, removed after use)
         continue-on-error: true
         run: |
-          T="$FLUTTER_ROOT/packages/flutter_tools"
-          echo "=== PROBE gradle_utils constants"
-          grep -nE "^(const|final) (String|int|Version)? ?[a-zA-Z]*(Gradle|Agp|Kotlin|Java|AndroidGradle)[A-Za-z]* *=" "$T/lib/src/android/gradle_utils.dart" | head -30
-          grep -rnE "(templateDefaultGradleVersion|templateAndroidGradlePluginVersion|templateKotlinGradlePluginVersion|maxKnownAndroidGradlePluginVersion|androidPluginDefault|newDsl|builtInKotlin)" "$T/lib" 2>/dev/null | head -30
-          echo "=== PROBE android template files"
-          find "$T/templates" \( -name 'settings.gradle*' -o -name 'gradle.properties*' -o -name 'gradle-wrapper.properties*' -o -name 'build.gradle*' \) -path '*android*' | head -20
-          for f in $(find "$T/templates/app_shared" "$T/templates/app" -path '*android*' \( -name 'settings.gradle*' -o -name 'gradle.properties*' -o -name 'gradle-wrapper.properties*' \) 2>/dev/null | head -6); do echo "--- $f"; cat "$f"; done
-          echo "=== PROBE flutter extension creation in the Gradle plugin"
-          grep -rnE "extensions\.(create|add)\(\"flutter\"|\"flutter\", *FlutterExtension|newDsl|builtInKotlin|android\.newDsl" "$T/gradle/src" 2>/dev/null | head -30
-          echo "=== PROBE flutter version"
-          cat "$FLUTTER_ROOT/version" 2>/dev/null; flutter --version 2>&1 | head -3
+          T="$FLUTTER_ROOT/packages/flutter_tools/templates/app/android-kotlin.tmpl"
+          for f in build.gradle.kts.tmpl app/build.gradle.kts.tmpl; do echo "--- TEMPLATE $f"; cat "$T/$f"; done
+          echo "--- PLUGIN LOADER"
+          find "$FLUTTER_ROOT/packages/flutter_tools/gradle/src/main/kotlin" -name 'PluginHandler.kt' -o -name 'FlutterPlugin.kt' | head
+          grep -n -B6 -A6 'extensions.create("flutter"' "$FLUTTER_ROOT/packages/flutter_tools/gradle/src/main/kotlin/plugins/PluginHandler.kt" | head -50
       - name: Auto-format (TEMPORARY one-time step, removed after the commit)
         if: github.ref == 'refs/heads/fix/apk-build-root-cause'
         run: |
