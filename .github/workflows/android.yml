@@ -52,6 +52,18 @@ jobs:
           name: build-failure-${{ github.run_number }}
           path: build/logs/
           retention-days: 14
+      - name: Gradle probe (TEMPORARY, removed after use)
+        continue-on-error: true
+        run: |
+          C="$PUB_CACHE/hosted/pub.dev"
+          P="$(ls -d "$C"/android_file_picker-* | sort -V | tail -n 1)"
+          echo "=== PROBE $P/android"; ls -la "$P/android"
+          echo "=== PROBE build.gradle.kts"; cat -n "$P/android/build.gradle.kts"
+          echo "=== PROBE who else reads the flutter extension"
+          grep -rnE "flutter\.(compileSdk|minSdk|targetSdk|ndkVersion)|flutter \{|\bflutter\." "$C"/*/android/build.gradle* 2>/dev/null | head -30
+          echo "=== PROBE flutter gradle plugin templates"
+          F="$(dirname "$(dirname "$(which flutter)")")"
+          ls "$F/packages/flutter_tools/gradle/src/main/kotlin" 2>&1 | head -30
       - name: Auto-format (TEMPORARY one-time step, removed after the commit)
         if: github.ref == 'refs/heads/fix/apk-build-root-cause'
         run: |
