@@ -19,7 +19,7 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -31,7 +31,17 @@ jobs:
       - name: Restore OFL font assets
         run: bash tools/fetch_fonts.sh
       - name: Resolve pinned packages
-        run: flutter pub get
+        run: |
+          mkdir -p build/logs
+          set -o pipefail
+          flutter pub get -v 2>&1 | tee build/logs/pub-get.log
+      - name: Upload dependency failure log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-failure-${{ github.run_number }}
+          path: build/logs/
+          retention-days: 14
       - name: Format check
         run: dart format --output=none --set-exit-if-changed .
       - name: Static analysis
