@@ -72,7 +72,11 @@ jobs:
       - name: Package tests (pure Dart)
         run: |
           for package in arabic_text document_core docx_engine txt_engine; do
-            (cd "packages/$package" && dart test)
+            if [ -d "packages/$package/test" ]; then
+              (cd "packages/$package" && dart test)
+            else
+              echo "::warning title=No tests::packages/$package has no test/ directory"
+            fi
           done
       - name: Build universal evaluation APK
         run: flutter build apk --debug
