@@ -51,8 +51,8 @@ class TemplatesPage extends ConsumerWidget {
                     );
                 await ref.read(documentsProvider.notifier).refresh();
                 if (context.mounted) {
-                    context.pushReplacement('/document/${record.id}');
-                  }
+                  context.pushReplacement('/document/${record.id}');
+                }
               },
               child: Padding(
                 padding: const EdgeInsets.all(18),

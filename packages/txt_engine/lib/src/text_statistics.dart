@@ -23,8 +23,8 @@ class TextStatistics {
       words,
       normalized.isEmpty ? 0 : '\n'.allMatches(normalized).length + 1,
       normalized
-            .split(RegExp(r'(?:\n\s*){2,}'))
-            .where((String part) => part.trim().isNotEmpty)
+          .split(RegExp(r'(?:\n\s*){2,}'))
+          .where((String part) => part.trim().isNotEmpty)
           .length,
     );
   }

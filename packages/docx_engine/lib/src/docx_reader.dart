@@ -112,8 +112,8 @@ class DocxReader {
             final target =
                 attribute(hyperlink, 'id') ?? attribute(hyperlink, 'anchor');
             if (target != null) {
-                (attrs ??= <String, dynamic>{})['link'] = target;
-              }
+              (attrs ??= <String, dynamic>{})['link'] = target;
+            }
           }
           _insert(operations, node.innerText, attrs);
         case 'tab':
