@@ -14,7 +14,7 @@ Versions and repository metadata were checked on **2026-11-20**. No AGPL/GPL eng
 | file_picker 13.4.0 / image_picker 1.2.4 | System pickers | MIT/BSD-family; no broad storage permission |
 | share_plus 13.3.1 | Native share sheet | BSD-family; explicit user action only |
 | enough_convert 1.7.1 | Legacy text encodings | BSD-family; read-back tested |
-| jpeg_encode 1.0.1 | RGBA to baseline JPEG | MIT/public-domain encoder origin; accepted |
+| image 4.x (resolved in lockfile) | RGBA to baseline JPEG and image processing | BSD-family; selected instead of the older SDK-incompatible jpeg_encode package |
 | Tajawal / Noto Naskh Arabic | UI and document fonts | SIL Open Font License; license files bundled |
 
 PDFBox-Android was evaluated as Apache-2.0 for later native annotation/redaction work, but is not included in this build. MuPDF and iText were excluded because their AGPL/commercial model conflicts with the project constraints. Syncfusion was not used.
