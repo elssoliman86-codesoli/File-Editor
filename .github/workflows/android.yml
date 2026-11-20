@@ -28,6 +28,8 @@ jobs:
           flutter-version: '3.50.1'
           channel: stable
           cache: true
+      - name: Restore OFL font assets
+        run: bash tools/fetch_fonts.sh
       - name: Resolve pinned packages
         run: flutter pub get
       - name: Format check

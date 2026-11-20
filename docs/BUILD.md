@@ -9,6 +9,7 @@
 ## Commands
 
 ```bash
+bash tools/fetch_fonts.sh
 flutter pub get
 dart format --output=none --set-exit-if-changed .
 flutter analyze --no-fatal-infos
