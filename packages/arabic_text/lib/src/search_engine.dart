@@ -97,10 +97,10 @@ class TextSearchEngine {
   }
 
   bool _isWholeWord(String text, int start, int end) {
-    bool word(int index) => RegExp(r'[\p{L}\p{N}_]', unicode: true)
-        .hasMatch(String.fromCharCode(text.runes.elementAt(index)));
-    final before = start > 0 && word(start - 1);
-    final after = end < text.length && word(end);
+    bool word(int codePoint) => RegExp(r'[\p{L}\p{N}_]', unicode: true)
+        .hasMatch(String.fromCharCode(codePoint));
+    final before = start > 0 && word(text.substring(0, start).runes.last);
+    final after = end < text.length && word(text.substring(end).runes.first);
     return !before && !after;
   }
 }
