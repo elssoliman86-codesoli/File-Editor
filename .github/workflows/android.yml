@@ -1,0 +1,84 @@
+name: analyze-test-apk
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: midad-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  verify-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.50.1'
+          channel: stable
+          cache: true
+      - name: Resolve pinned packages
+        run: flutter pub get
+      - name: Format check
+        run: dart format --output=none --set-exit-if-changed .
+      - name: Static analysis
+        run: flutter analyze --no-fatal-infos
+      - name: Unit and widget tests
+        run: flutter test --coverage
+      - name: Package tests
+        run: |
+          for package in arabic_text document_core docx_engine txt_engine; do
+            (cd "packages/$package" && flutter pub get && flutter test)
+          done
+      - name: Build universal evaluation APK
+        run: flutter build apk --debug
+      - name: Build ABI APKs
+        run: flutter build apk --debug --split-per-abi
+      - name: Verify APK signatures
+        run: |
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose build/app/outputs/flutter-apk/app-debug.apk
+          sha256sum build/app/outputs/flutter-apk/*.apk > build/app/outputs/flutter-apk/SHA256SUMS.txt
+          ls -lh build/app/outputs/flutter-apk/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: midad-apk-${{ github.sha }}
+          path: |
+            build/app/outputs/flutter-apk/*.apk
+            build/app/outputs/flutter-apk/SHA256SUMS.txt
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        with:
+          name: test-evidence-${{ github.sha }}
+          path: coverage/lcov.info
+          retention-days: 30
+
+  release-evaluation:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: verify-and-build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: midad-apk-*
+          path: artifacts
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v0.1.0-evaluation
+          name: Midad 0.1.0 — evaluation build
+          body: |
+            Debug-signed evaluation APKs built by GitHub Actions after format, static analysis and tests.
+            These are not production-signed Google Play releases. See docs/FEATURE_REPORT.md and docs/KNOWN_LIMITATIONS.md.
+          files: artifacts/*
+          make_latest: true
