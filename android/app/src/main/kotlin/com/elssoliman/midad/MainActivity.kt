@@ -10,6 +10,7 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import java.io.File
 import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.security.MessageDigest
 
 class MainActivity : FlutterActivity() {
@@ -38,6 +39,10 @@ class MainActivity : FlutterActivity() {
                     result.success(null)
                 }
                 "createDocument" -> {
+                    if (pendingResult != null) {
+                        result.error("BUSY", "Another document export is already active", null)
+                        return@setMethodCallHandler
+                    }
                     pendingExport = PendingExport(
                         call.argument<String>("name") ?: "document.bin",
                         call.argument<String>("path") ?: "",
@@ -47,10 +52,6 @@ class MainActivity : FlutterActivity() {
                         addCategory(Intent.CATEGORY_OPENABLE)
                         type = call.argument<String>("mimeType") ?: "application/octet-stream"
                         putExtra(Intent.EXTRA_TITLE, pendingExport?.name)
-                    }
-                    if (pendingResult != null) {
-                        result.error("BUSY", "Another document export is already active", null)
-                        return@setMethodCallHandler
                     }
                     pendingResult = result
                     startActivityForResult(intent, createDocument)
@@ -115,12 +116,15 @@ class MainActivity : FlutterActivity() {
 
     private fun copyToUri(uri: Uri, path: String, expectedHash: String, mode: String): Map<String, Any?> {
         if (path.isEmpty()) throw IllegalArgumentException("Temporary export path is empty")
-        FileInputStream(path).use { input ->
-            contentResolver.openOutputStream(uri, mode).use { output ->
-                requireNotNull(output) { "Document provider did not open an output stream" }
-                input.copyTo(output)
-                output.flush()
-                output.fd.sync()
+        val descriptor = contentResolver.openFileDescriptor(uri, mode)
+            ?: throw IllegalStateException("Document provider did not open the destination")
+        descriptor.use { parcel ->
+            FileInputStream(path).use { input ->
+                FileOutputStream(parcel.fileDescriptor).use { output ->
+                    input.copyTo(output)
+                    output.flush()
+                    output.fd.sync()
+                }
             }
         }
         val digest = MessageDigest.getInstance("SHA-256")
@@ -150,7 +154,8 @@ class MainActivity : FlutterActivity() {
         if (intent == null) return null
         val uri = when (intent.action) {
             Intent.ACTION_VIEW, Intent.ACTION_EDIT -> intent.data
-            Intent.ACTION_SEND -> intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
+            @Suppress("DEPRECATION")
+            Intent.ACTION_SEND -> intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
             else -> null
         } ?: return null
         try {
