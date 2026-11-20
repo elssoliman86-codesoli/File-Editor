@@ -55,15 +55,17 @@ jobs:
       - name: Gradle probe (TEMPORARY, removed after use)
         continue-on-error: true
         run: |
-          C="$PUB_CACHE/hosted/pub.dev"
-          P="$(ls -d "$C"/android_file_picker-* | sort -V | tail -n 1)"
-          echo "=== PROBE $P/android"; ls -la "$P/android"
-          echo "=== PROBE build.gradle.kts"; cat -n "$P/android/build.gradle.kts"
-          echo "=== PROBE who else reads the flutter extension"
-          grep -rnE "flutter\.(compileSdk|minSdk|targetSdk|ndkVersion)|flutter \{|\bflutter\." "$C"/*/android/build.gradle* 2>/dev/null | head -30
-          echo "=== PROBE flutter gradle plugin templates"
-          F="$(dirname "$(dirname "$(which flutter)")")"
-          ls "$F/packages/flutter_tools/gradle/src/main/kotlin" 2>&1 | head -30
+          T="$FLUTTER_ROOT/packages/flutter_tools"
+          echo "=== PROBE gradle_utils constants"
+          grep -nE "^(const|final) (String|int|Version)? ?[a-zA-Z]*(Gradle|Agp|Kotlin|Java|AndroidGradle)[A-Za-z]* *=" "$T/lib/src/android/gradle_utils.dart" | head -30
+          grep -rnE "(templateDefaultGradleVersion|templateAndroidGradlePluginVersion|templateKotlinGradlePluginVersion|maxKnownAndroidGradlePluginVersion|androidPluginDefault|newDsl|builtInKotlin)" "$T/lib" 2>/dev/null | head -30
+          echo "=== PROBE android template files"
+          find "$T/templates" \( -name 'settings.gradle*' -o -name 'gradle.properties*' -o -name 'gradle-wrapper.properties*' -o -name 'build.gradle*' \) -path '*android*' | head -20
+          for f in $(find "$T/templates/app_shared" "$T/templates/app" -path '*android*' \( -name 'settings.gradle*' -o -name 'gradle.properties*' -o -name 'gradle-wrapper.properties*' \) 2>/dev/null | head -6); do echo "--- $f"; cat "$f"; done
+          echo "=== PROBE flutter extension creation in the Gradle plugin"
+          grep -rnE "extensions\.(create|add)\(\"flutter\"|\"flutter\", *FlutterExtension|newDsl|builtInKotlin|android\.newDsl" "$T/gradle/src" 2>/dev/null | head -30
+          echo "=== PROBE flutter version"
+          cat "$FLUTTER_ROOT/version" 2>/dev/null; flutter --version 2>&1 | head -3
       - name: Auto-format (TEMPORARY one-time step, removed after the commit)
         if: github.ref == 'refs/heads/fix/apk-build-root-cause'
         run: |
