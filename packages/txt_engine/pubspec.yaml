@@ -5,6 +5,6 @@ publish_to: none
 environment:
   sdk: ^3.14.0
 dependencies:
-  enough_convert: 1.7.1
+  enough_convert: '>=1.5.0 <2.0.0'
 dev_dependencies:
-  test: 1.31.2
+  test: ^1.25.0

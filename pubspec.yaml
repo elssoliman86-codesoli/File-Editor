@@ -38,33 +38,29 @@ dependencies:
     path: packages/docx_engine
   txt_engine:
     path: packages/txt_engine
-  archive: 4.7.1
-  crypto: 3.0.8
-  dart_quill_delta: 10.0.0
-  enough_convert: 1.7.1
-  file_picker: 13.4.0
-  flutter_quill: 11.6.0
-  flutter_riverpod: 3.5.0
-  go_router: 18.1.4
-  image_picker: 1.2.4
-  intl: 0.20.2
-  image: 4.7.2
-  mime: 2.1.0
-  material_ui: 1.11.1
-  path: 1.9.1
-  path_provider: 2.1.6
-  pdf: 3.13.1
-  pdfrx: 3.1.0
-  printing: 5.15.1
-  share_plus: 13.3.1
-  shared_preferences: 2.5.6
-  sqflite: 2.4.6
-  xml: ^6.6.1
+  crypto: ^3.0.8
+  file_picker: ^13.4.0
+  flutter_quill: ^11.6.0
+  flutter_riverpod: ^3.5.0
+  go_router: ^18.1.4
+  image: ^4.7.2
+  image_picker: ^1.2.4
+  # The Flutter SDK pins the exact intl version through flutter_localizations.
+  # `any` is the officially documented way to follow the SDK pin.
+  intl: any
+  material_ui: ^1.11.1
+  path: ^1.9.0
+  path_provider: ^2.1.6
+  pdf: ^3.13.1
+  pdfrx: ^3.1.0
+  printing: ^5.15.1
+  share_plus: ^13.3.1
+  shared_preferences: ^2.5.6
+  sqflite: ^2.4.6
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: 6.0.0
+  flutter_lints: ^6.0.0
   integration_test:
     sdk: flutter
-  test: 1.31.2

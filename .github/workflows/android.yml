@@ -30,15 +30,21 @@ jobs:
           cache: true
       - name: Restore OFL font assets
         run: bash tools/fetch_fonts.sh
-      - name: Resolve pinned packages
+      - name: Resolve dependencies (app and local packages)
         run: |
           mkdir -p build/logs
-          set +e
-          flutter pub get -v > build/logs/pub-get.log 2>&1
-          status=$?
-          tail -120 build/logs/pub-get.log
-          echo "PUB_GET_EXIT=$status"
-          exit $status
+          set -o pipefail
+          # Non-verbose output keeps pub's human-readable "version solving failed"
+          # explanation, which the verbose log buries under a stack trace.
+          flutter pub get 2>&1 | tee build/logs/pub-get.log
+          for package in arabic_text document_core docx_engine txt_engine; do
+            (cd "packages/$package" && dart pub get 2>&1 | tee "../../build/logs/pub-get-$package.log")
+          done
+      - name: Print resolved lockfile (commit it for reproducible builds)
+        run: |
+          echo '===== BEGIN pubspec.lock ====='
+          cat pubspec.lock
+          echo '===== END pubspec.lock ====='
       - name: Upload dependency failure log
         if: failure()
         uses: actions/upload-artifact@v4
@@ -52,10 +58,10 @@ jobs:
         run: flutter analyze --no-fatal-infos
       - name: Unit and widget tests
         run: flutter test --coverage
-      - name: Package tests
+      - name: Package tests (pure Dart)
         run: |
           for package in arabic_text document_core docx_engine txt_engine; do
-            (cd "packages/$package" && flutter pub get && flutter test)
+            (cd "packages/$package" && dart test)
           done
       - name: Build universal evaluation APK
         run: flutter build apk --debug
@@ -63,7 +69,9 @@ jobs:
         run: flutter build apk --debug --split-per-abi
       - name: Verify APK signatures
         run: |
-          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose build/app/outputs/flutter-apk/app-debug.apk
+          APKSIGNER="$(ls -d "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -n 1)"
+          echo "Using $APKSIGNER"
+          "$APKSIGNER" verify --verbose build/app/outputs/flutter-apk/app-debug.apk
           sha256sum build/app/outputs/flutter-apk/*.apk > build/app/outputs/flutter-apk/SHA256SUMS.txt
           ls -lh build/app/outputs/flutter-apk/
       - uses: actions/upload-artifact@v4
