@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <exclude domain="cache" path="." />
+    <exclude domain="database" path="midad.db" />
+    <exclude domain="file" path="workspace/" />
+</full-backup-content>

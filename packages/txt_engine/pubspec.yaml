@@ -1,0 +1,10 @@
+name: txt_engine
+description: Encoding-aware plain text codec for Midad.
+version: 0.1.0
+publish_to: none
+environment:
+  sdk: ^3.14.0
+dependencies:
+  enough_convert: 1.7.1
+dev_dependencies:
+  test: 1.31.2
