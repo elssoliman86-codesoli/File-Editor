@@ -4,7 +4,6 @@ import 'package:document_core/document_core.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/providers/app_providers.dart';
-import '../../data/models/document_record.dart';
 import '../../l10n/app_localizations.dart';
 import '../../shared/widgets/document_tile.dart';
 import '../../shared/widgets/empty_state.dart';

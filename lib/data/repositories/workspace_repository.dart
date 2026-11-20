@@ -9,6 +9,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:txt_engine/txt_engine.dart';
 
 import '../local/atomic_file_store.dart';
@@ -337,7 +338,7 @@ Uint8List _saveDocx(_DocxSaveInput input) {
 class _DocxSaveInput {
   const _DocxSaveInput(this.operations, this.originalBytes);
   final List<Map<String, dynamic>> operations;
-  final Uint8List? originalBytes;
+  final List<int>? originalBytes;
 }
 
 List<Map<String, dynamic>> _decodeOperations(String source) {

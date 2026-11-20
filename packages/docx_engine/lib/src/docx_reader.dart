@@ -106,13 +106,14 @@ class DocxReader {
       switch (node.name.local) {
         case 't' || 'delText':
           final run = _ancestor(node, 'r');
-          final attrs = run == null ? null : _runAttributes(run);
+          var attrs = run == null ? null : _runAttributes(run);
           final hyperlink = _ancestor(node, 'hyperlink');
           if (hyperlink != null) {
             final target =
                 attribute(hyperlink, 'id') ?? attribute(hyperlink, 'anchor');
-            if (target != null)
-              (attrs ??= <String, dynamic>{})['link'] = target;
+            if (target != null) {
+                (attrs ??= <String, dynamic>{})['link'] = target;
+              }
           }
           _insert(operations, node.innerText, attrs);
         case 'tab':

@@ -52,6 +52,18 @@ jobs:
           name: build-failure-${{ github.run_number }}
           path: build/logs/
           retention-days: 14
+      - name: API probe (TEMPORARY, removed after use)
+        continue-on-error: true
+        run: |
+          C="$PUB_CACHE/hosted/pub.dev"
+          FP="$(ls -d "$C"/file_picker-* | sort -V | tail -n 1)"
+          echo "=== PROBE dir: $FP"
+          echo "=== PROBE changelog (head)"; sed -n '1,70p' "$FP/CHANGELOG.md"
+          echo "=== PROBE files"; ls "$FP/lib" "$FP/lib/src" 2>&1
+          echo "=== PROBE pickFiles declarations"; grep -rn "pickFiles" "$FP/lib" | head -20
+          echo "=== PROBE FilePicker class header"; grep -rn "class FilePicker" "$FP/lib" | head
+          echo "=== PROBE README usage"; grep -n -B2 -A12 "pickFiles" "$FP/README.md" | head -70
+          echo "=== PROBE PlatformFile fields"; grep -rnE "^\s*(final|late final) " "$FP/lib/src/platform_file.dart" | head -20
       - name: Auto-format (TEMPORARY one-time step, removed after the commit)
         if: github.ref == 'refs/heads/fix/apk-build-root-cause'
         run: |

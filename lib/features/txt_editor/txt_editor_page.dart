@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:arabic_text/arabic_text.dart';
+import 'package:arabic_text/arabic_text.dart';
 import 'package:document_core/document_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

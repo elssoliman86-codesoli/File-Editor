@@ -39,7 +39,6 @@ class _RichEditorPageState extends ConsumerState<RichEditorPage> {
   bool _searchVisible = false;
   bool _dirty = false;
   bool _saving = false;
-  int _saveGeneration = 0;
 
   @override
   void initState() {
@@ -67,7 +66,6 @@ class _RichEditorPageState extends ConsumerState<RichEditorPage> {
 
   void _onEdit() {
     if (!_dirty && mounted) setState(() => _dirty = true);
-    _saveGeneration++;
     _scheduleAutosave();
   }
 
@@ -277,6 +275,7 @@ class _RichEditorPageState extends ConsumerState<RichEditorPage> {
                             showInlineCode: false,
                             showCodeBlock: false,
                             showListCheck: false,
+                            // ignore: experimental_member_use
                             showClipboardPaste: false,
                             showSearchButton: false,
                           ),

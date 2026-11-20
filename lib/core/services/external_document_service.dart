@@ -3,9 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../data/repositories/workspace_repository.dart';
 import '../providers/app_providers.dart';
 import '../router/app_router.dart';
 

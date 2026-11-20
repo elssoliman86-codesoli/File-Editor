@@ -31,7 +31,6 @@ class MidadApp extends ConsumerWidget {
         GlobalWidgetsLocalizations.delegate,
         FlutterQuillLocalizations.delegate,
         mui.GlobalMaterialLocalizations.delegate,
-        mui.GlobalWidgetsLocalizations.delegate,
       ],
       theme: AppTheme.light(settings.highContrast),
       darkTheme: AppTheme.dark(settings.amoled, settings.highContrast),

@@ -29,26 +29,6 @@ bool enabled(XmlElement? element) {
   return value == null || value == 'true' || value == '1' || value == 'on';
 }
 
-XmlElement element(
-  String name, {
-  Map<String, String> attributes = const {},
-  Iterable<XmlNode> children = const [],
-  String? text,
-}) {
-  final builder = XmlBuilder();
-  builder.element(
-    name,
-    attributes: attributes,
-    nest: () {
-      for (final node in children) {
-        builder.node(node.copy());
-      }
-      if (text != null) builder.text(text);
-    },
-  );
-  return builder.buildFragment().firstChild! as XmlElement;
-}
-
 String escapeXml(String value) {
   return value
       .replaceAll('&', '&amp;')

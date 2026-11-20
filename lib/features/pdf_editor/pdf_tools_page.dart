@@ -81,8 +81,8 @@ class PdfToolsPage extends StatelessWidget {
                 child: InkWell(
                   borderRadius: BorderRadius.circular(16),
                   onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => PdfToolWorkspace(mode: tool.$1),
+                    MaterialPageRoute<void>(
+                        builder: (_) => PdfToolWorkspace(mode: tool.$1),
                     ),
                   ),
                   child: Padding(
@@ -268,7 +268,9 @@ class _PdfToolWorkspaceState extends ConsumerState<PdfToolWorkspace> {
       return;
     }
     await Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => PdfOrganizerPage(records: _records)),
+      MaterialPageRoute<void>(
+          builder: (_) => PdfOrganizerPage(records: _records),
+        ),
     );
   }
 

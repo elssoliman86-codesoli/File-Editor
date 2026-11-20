@@ -89,7 +89,7 @@ class _DocumentOpenerState extends State<DocumentOpener> {
       _ => PdfToolWorkspace(mode: 'images', initialRecord: record),
     };
     await Navigator.of(context)
-        .pushReplacement(MaterialPageRoute(builder: (_) => page));
+        .pushReplacement(MaterialPageRoute<void>(builder: (_) => page));
   }
 
   @override
