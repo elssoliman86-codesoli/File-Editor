@@ -15,10 +15,22 @@ class CompatibilityBanner extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           child: Row(
             children: [
-              const Icon(Icons.info_outline_rounded, color: Color(0xFFFFB020), size: 20),
+              const Icon(
+                Icons.info_outline_rounded,
+                color: Color(0xFFFFB020),
+                size: 20,
+              ),
               const SizedBox(width: 10),
-              Expanded(child: Text(message, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, height: 1.5))),
-              if (onDetails != null) const Icon(Icons.chevron_right_rounded, size: 18),
+              Expanded(
+                child: Text(
+                  message,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 12, height: 1.5),
+                ),
+              ),
+              if (onDetails != null)
+                const Icon(Icons.chevron_right_rounded, size: 18),
             ],
           ),
         ),

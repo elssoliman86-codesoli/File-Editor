@@ -66,8 +66,5 @@ int halfPoints(dynamic value, int fallback) {
 
 Map<String, dynamic>? stringAttributes(XmlElement element) {
   if (element.attributes.isEmpty) return null;
-  return {
-    for (final attr in element.attributes)
-      attr.name.local: attr.value,
-  };
+  return {for (final attr in element.attributes) attr.name.local: attr.value};
 }

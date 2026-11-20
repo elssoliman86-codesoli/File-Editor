@@ -12,7 +12,8 @@ class AtomicFileStore {
     final temp = File('${target.path}.tmp');
     await temp.writeAsBytes(bytes, flush: true);
     final check = await temp.readAsBytes();
-    if (check.length != bytes.length || sha256.convert(check) != sha256.convert(bytes)) {
+    if (check.length != bytes.length ||
+        sha256.convert(check) != sha256.convert(bytes)) {
       await temp.delete();
       throw const FileSystemException('Atomic write verification failed.');
     }
@@ -30,8 +31,12 @@ class AtomicFileStore {
   }
 
   String safeName(String input, String extension) {
-    var name = p.basename(input).replaceAll(RegExp(r'[<>:"/\\|?*\x00-\x1F]'), '_').trim();
-    if (name.isEmpty || name == '.' || name == '..') name = 'document.$extension';
+    var name = p
+        .basename(input)
+        .replaceAll(RegExp(r'[<>:"/\\|?*\x00-\x1F]'), '_')
+        .trim();
+    if (name.isEmpty || name == '.' || name == '..')
+      name = 'document.$extension';
     if (!name.toLowerCase().endsWith('.${extension.toLowerCase()}')) {
       name = '${p.basenameWithoutExtension(name)}.$extension';
     }

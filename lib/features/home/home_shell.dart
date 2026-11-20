@@ -35,14 +35,35 @@ class _HomeShellState extends State<HomeShell> {
           selectedIndex: _index,
           onDestinationSelected: (index) {
             setState(() => _index = index);
-            final path = ['/home', '/documents', '/pdf-tools', '/settings'][index];
+            final path = [
+              '/home',
+              '/documents',
+              '/pdf-tools',
+              '/settings',
+            ][index];
             if (GoRouterState.of(context).uri.path != path) context.go(path);
           },
           destinations: [
-            NavigationDestination(icon: const Icon(Icons.home_outlined), selectedIcon: const Icon(Icons.home_rounded), label: l10n.t('home')),
-            NavigationDestination(icon: const Icon(Icons.description_outlined), selectedIcon: const Icon(Icons.description_rounded), label: l10n.t('documents')),
-            NavigationDestination(icon: const Icon(Icons.picture_as_pdf_outlined), selectedIcon: const Icon(Icons.picture_as_pdf_rounded), label: l10n.t('pdfTools')),
-            NavigationDestination(icon: const Icon(Icons.settings_outlined), selectedIcon: const Icon(Icons.settings_rounded), label: l10n.t('settings')),
+            NavigationDestination(
+              icon: const Icon(Icons.home_outlined),
+              selectedIcon: const Icon(Icons.home_rounded),
+              label: l10n.t('home'),
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.description_outlined),
+              selectedIcon: const Icon(Icons.description_rounded),
+              label: l10n.t('documents'),
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.picture_as_pdf_outlined),
+              selectedIcon: const Icon(Icons.picture_as_pdf_rounded),
+              label: l10n.t('pdfTools'),
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.settings_outlined),
+              selectedIcon: const Icon(Icons.settings_rounded),
+              label: l10n.t('settings'),
+            ),
           ],
         ),
       ),

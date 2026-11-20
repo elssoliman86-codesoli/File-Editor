@@ -4,18 +4,18 @@ import 'app_palette.dart';
 
 abstract final class AppTheme {
   static ThemeData dark(bool amoled, bool highContrast) => _base(
-        brightness: Brightness.dark,
-        scaffold: amoled ? Colors.black : AppPalette.deepNavy,
-        surface: amoled ? const Color(0xFF090909) : AppPalette.charcoal,
-        highContrast: highContrast,
-      );
+    brightness: Brightness.dark,
+    scaffold: amoled ? Colors.black : AppPalette.deepNavy,
+    surface: amoled ? const Color(0xFF090909) : AppPalette.charcoal,
+    highContrast: highContrast,
+  );
 
   static ThemeData light(bool highContrast) => _base(
-        brightness: Brightness.light,
-        scaffold: AppPalette.paper,
-        surface: Colors.white,
-        highContrast: highContrast,
-      );
+    brightness: Brightness.light,
+    scaffold: AppPalette.paper,
+    surface: Colors.white,
+    highContrast: highContrast,
+  );
 
   static ThemeData _base({
     required Brightness brightness,
@@ -23,16 +23,17 @@ abstract final class AppTheme {
     required Color surface,
     required bool highContrast,
   }) {
-    final scheme = ColorScheme.fromSeed(
-      seedColor: AppPalette.electricBlue,
-      brightness: brightness,
-      surface: surface,
-      error: AppPalette.error,
-    ).copyWith(
-      primary: highContrast && brightness == Brightness.dark
-          ? AppPalette.cyan
-          : AppPalette.electricBlue,
-    );
+    final scheme =
+        ColorScheme.fromSeed(
+          seedColor: AppPalette.electricBlue,
+          brightness: brightness,
+          surface: surface,
+          error: AppPalette.error,
+        ).copyWith(
+          primary: highContrast && brightness == Brightness.dark
+              ? AppPalette.cyan
+              : AppPalette.electricBlue,
+        );
     final borderRadius = BorderRadius.circular(16);
     return ThemeData(
       useMaterial3: true,

@@ -33,18 +33,39 @@ class HomePage extends ConsumerWidget {
                           width: 44,
                           height: 44,
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(colors: [AppPalette.electricBlue, AppPalette.cyan]),
+                            gradient: const LinearGradient(
+                              colors: [
+                                AppPalette.electricBlue,
+                                AppPalette.cyan,
+                              ],
+                            ),
                             borderRadius: BorderRadius.circular(14),
                           ),
-                          child: const Icon(Icons.edit_note_rounded, color: Colors.white, size: 27),
+                          child: const Icon(
+                            Icons.edit_note_rounded,
+                            color: Colors.white,
+                            size: 27,
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(l10n.t('appName'), style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700)),
-                              Text(l10n.t('appTagline'), style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                              Text(
+                                l10n.t('appName'),
+                                style: Theme.of(context).textTheme.headlineSmall
+                                    ?.copyWith(fontWeight: FontWeight.w700),
+                              ),
+                              Text(
+                                l10n.t('appTagline'),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -53,7 +74,8 @@ class HomePage extends ConsumerWidget {
                           onPressed: () => context.go('/documents'),
                           icon: const Icon(Icons.search_rounded),
                         ),
-                      ]),
+                      ],
+                    ),
                     const SizedBox(height: 26),
                     _HeroCard(
                       title: l10n.t('newDocument'),
@@ -63,17 +85,43 @@ class HomePage extends ConsumerWidget {
                     const SizedBox(height: 22),
                     Row(
                       children: [
-                        Expanded(child: _QuickAction(icon: Icons.folder_open_outlined, label: l10n.t('openFile'), color: AppPalette.cyan, onTap: () => importAndOpen(context, ref))),
+                        Expanded(
+                          child: _QuickAction(
+                            icon: Icons.folder_open_outlined,
+                            label: l10n.t('openFile'),
+                            color: AppPalette.cyan,
+                            onTap: () => importAndOpen(context, ref),
+                          ),
+                        ),
                         const SizedBox(width: 12),
-                        Expanded(child: _QuickAction(icon: Icons.dashboard_customize_outlined, label: l10n.t('template'), color: const Color(0xFFB69CFF), onTap: () => context.push('/templates'))),
+                        Expanded(
+                          child: _QuickAction(
+                            icon: Icons.dashboard_customize_outlined,
+                            label: l10n.t('template'),
+                            color: const Color(0xFFB69CFF),
+                            onTap: () => context.push('/templates'),
+                          ),
+                        ),
                         const SizedBox(width: 12),
-                        Expanded(child: _QuickAction(icon: Icons.picture_as_pdf_outlined, label: l10n.t('merge'), color: const Color(0xFFFF7D87), onTap: () => context.push('/pdf-tool/merge'))),
+                        Expanded(
+                          child: _QuickAction(
+                            icon: Icons.picture_as_pdf_outlined,
+                            label: l10n.t('merge'),
+                            color: const Color(0xFFFF7D87),
+                            onTap: () => context.push('/pdf-tool/merge'),
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 28),
                     SectionHeader(
                       l10n.t('recent'),
-                      trailing: documents.isEmpty ? null : TextButton(onPressed: () => context.go('/documents'), child: Text(l10n.t('all'))),
+                      trailing: documents.isEmpty
+                          ? null
+                          : TextButton(
+                              onPressed: () => context.go('/documents'),
+                              child: Text(l10n.t('all')),
+                            ),
                     ),
                     const SizedBox(height: 12),
                   ]),
@@ -104,8 +152,11 @@ class HomePage extends ConsumerWidget {
                       return DocumentTile(
                         record: record,
                         onOpen: () => context.push('/document/${record.id}'),
-                        onFavorite: () => ref.read(documentsProvider.notifier).toggleFavorite(record),
-                        onDelete: () => confirmRemoveDocument(context, ref, record),
+                        onFavorite: () => ref
+                            .read(documentsProvider.notifier)
+                            .toggleFavorite(record),
+                        onDelete: () =>
+                            confirmRemoveDocument(context, ref, record),
                       );
                     },
                   ),
@@ -125,7 +176,11 @@ class HomePage extends ConsumerWidget {
 }
 
 class _HeroCard extends StatelessWidget {
-  const _HeroCard({required this.title, required this.subtitle, required this.onTap});
+  const _HeroCard({
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
   final String title;
   final String subtitle;
   final VoidCallback onTap;
@@ -154,14 +209,31 @@ class _HeroCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.w700)),
+                    Text(
+                      title,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                     const SizedBox(height: 8),
-                    Text(subtitle, style: const TextStyle(color: Color(0xFFD6E5FF), height: 1.6, fontSize: 13)),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        color: Color(0xFFD6E5FF),
+                        height: 1.6,
+                        fontSize: 13,
+                      ),
+                    ),
                   ],
                 ),
               ),
               const SizedBox(width: 12),
-              const Icon(Icons.add_circle_outline_rounded, color: Colors.white, size: 36),
+              const Icon(
+                Icons.add_circle_outline_rounded,
+                color: Colors.white,
+                size: 36,
+              ),
             ],
           ),
         ),
@@ -171,7 +243,12 @@ class _HeroCard extends StatelessWidget {
 }
 
 class _QuickAction extends StatelessWidget {
-  const _QuickAction({required this.icon, required this.label, required this.color, required this.onTap});
+  const _QuickAction({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
   final IconData icon;
   final String label;
   final Color color;
@@ -189,7 +266,16 @@ class _QuickAction extends StatelessWidget {
             children: [
               Icon(icon, color: color, size: 28),
               const SizedBox(height: 10),
-              Text(label, textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ],
           ),
         ),

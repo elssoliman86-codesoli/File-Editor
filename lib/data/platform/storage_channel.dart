@@ -17,15 +17,21 @@ class StorageChannel {
   }) async {
     if (Platform.isAndroid) {
       final temp = await File(
-        p.join(Directory.systemTemp.path, 'midad-export-${DateTime.now().microsecondsSinceEpoch}'),
+        p.join(
+          Directory.systemTemp.path,
+          'midad-export-${DateTime.now().microsecondsSinceEpoch}',
+        ),
       ).writeAsBytes(bytes, flush: true);
       try {
-        final result = await _channel.invokeMethod<Map<Object?, Object?>>('createDocument', {
-          'name': name,
-          'mimeType': mimeType,
-          'path': temp.path,
-          'sha256': sha256.convert(bytes).toString(),
-        });
+        final result = await _channel.invokeMethod<Map<Object?, Object?>>(
+          'createDocument',
+          {
+            'name': name,
+            'mimeType': mimeType,
+            'path': temp.path,
+            'sha256': sha256.convert(bytes).toString(),
+          },
+        );
         if (result == null) throw const DocumentFailure('Save was cancelled.');
         return SaveReceipt(
           name: result['name']! as String,
@@ -53,22 +59,30 @@ class StorageChannel {
     required String name,
     required Uint8List bytes,
   }) async {
-    if (!Platform.isAndroid) throw UnsupportedError('Original SAF replacement is Android-only.');
+    if (!Platform.isAndroid)
+      throw UnsupportedError('Original SAF replacement is Android-only.');
     final temp = await File(
-      p.join(Directory.systemTemp.path, 'midad-replace-${DateTime.now().microsecondsSinceEpoch}'),
+      p.join(
+        Directory.systemTemp.path,
+        'midad-replace-${DateTime.now().microsecondsSinceEpoch}',
+      ),
     ).writeAsBytes(bytes, flush: true);
     try {
-      final result = await _channel.invokeMethod<Map<Object?, Object?>>('replaceDocument', {
-        'uri': uri,
-        'name': name,
-        'path': temp.path,
-        'sha256': sha256.convert(bytes).toString(),
-      });
+      final result = await _channel.invokeMethod<Map<Object?, Object?>>(
+        'replaceDocument',
+        {
+          'uri': uri,
+          'name': name,
+          'path': temp.path,
+          'sha256': sha256.convert(bytes).toString(),
+        },
+      );
       return SaveReceipt(
         name: result?['name'] as String? ?? name,
         destination: uri,
         byteCount: result?['bytes'] as int? ?? bytes.length,
-        sha256: result?['sha256'] as String? ?? sha256.convert(bytes).toString(),
+        sha256:
+            result?['sha256'] as String? ?? sha256.convert(bytes).toString(),
         verified: result?['verified'] as bool? ?? false,
       );
     } finally {

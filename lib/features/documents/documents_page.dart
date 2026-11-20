@@ -33,7 +33,13 @@ class _DocumentsPageState extends ConsumerState<DocumentsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.t('documents')),
-        actions: [IconButton(onPressed: () => importAndOpen(context, ref), icon: const Icon(Icons.create_new_folder_outlined), tooltip: l10n.t('openFile'))],
+        actions: [
+          IconButton(
+            onPressed: () => importAndOpen(context, ref),
+            icon: const Icon(Icons.create_new_folder_outlined),
+            tooltip: l10n.t('openFile'),
+          ),
+        ],
       ),
       body: SafeArea(
         child: Column(
@@ -42,7 +48,10 @@ class _DocumentsPageState extends ConsumerState<DocumentsPage> {
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
               child: TextField(
                 onChanged: (value) => setState(() => _query = value),
-                decoration: InputDecoration(prefixIcon: const Icon(Icons.search_rounded), hintText: l10n.t('searchDocuments')),
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.search_rounded),
+                  hintText: l10n.t('searchDocuments'),
+                ),
               ),
             ),
             SizedBox(
@@ -51,18 +60,58 @@ class _DocumentsPageState extends ConsumerState<DocumentsPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 scrollDirection: Axis.horizontal,
                 children: [
-                  _chip(l10n.t('all'), _filter == null && !_favorites, () => setState(() { _filter = null; _favorites = false; })),
-                  _chip(l10n.t('favorites'), _favorites, () => setState(() => _favorites = !_favorites), Icons.star_outline_rounded),
-                  _chip('Word', _filter == DocumentKind.docx, () => setState(() => _filter = _filter == DocumentKind.docx ? null : DocumentKind.docx)),
-                  _chip('PDF', _filter == DocumentKind.pdf, () => setState(() => _filter = _filter == DocumentKind.pdf ? null : DocumentKind.pdf)),
-                  _chip('TXT', _filter == DocumentKind.txt, () => setState(() => _filter = _filter == DocumentKind.txt ? null : DocumentKind.txt)),
+                  _chip(
+                    l10n.t('all'),
+                    _filter == null && !_favorites,
+                    () => setState(() {
+                      _filter = null;
+                      _favorites = false;
+                    }),
+                  ),
+                  _chip(
+                    l10n.t('favorites'),
+                    _favorites,
+                    () => setState(() => _favorites = !_favorites),
+                    Icons.star_outline_rounded,
+                  ),
+                  _chip(
+                    'Word',
+                    _filter == DocumentKind.docx,
+                    () => setState(
+                      () => _filter = _filter == DocumentKind.docx
+                          ? null
+                          : DocumentKind.docx,
+                    ),
+                  ),
+                  _chip(
+                    'PDF',
+                    _filter == DocumentKind.pdf,
+                    () => setState(
+                      () => _filter = _filter == DocumentKind.pdf
+                          ? null
+                          : DocumentKind.pdf,
+                    ),
+                  ),
+                  _chip(
+                    'TXT',
+                    _filter == DocumentKind.txt,
+                    () => setState(
+                      () => _filter = _filter == DocumentKind.txt
+                          ? null
+                          : DocumentKind.txt,
+                    ),
+                  ),
                 ],
               ),
             ),
             const SizedBox(height: 8),
             Expanded(
               child: documents.isEmpty
-                  ? EmptyState(icon: Icons.manage_search_rounded, title: l10n.t('emptyDocuments'), message: l10n.t('emptyHint'))
+                  ? EmptyState(
+                      icon: Icons.manage_search_rounded,
+                      title: l10n.t('emptyDocuments'),
+                      message: l10n.t('emptyHint'),
+                    )
                   : ListView.separated(
                       padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
                       itemCount: documents.length,
@@ -72,8 +121,11 @@ class _DocumentsPageState extends ConsumerState<DocumentsPage> {
                         return DocumentTile(
                           record: record,
                           onOpen: () => context.push('/document/${record.id}'),
-                          onFavorite: () => ref.read(documentsProvider.notifier).toggleFavorite(record),
-                          onDelete: () => confirmRemoveDocument(context, ref, record),
+                          onFavorite: () => ref
+                              .read(documentsProvider.notifier)
+                              .toggleFavorite(record),
+                          onDelete: () =>
+                              confirmRemoveDocument(context, ref, record),
                         );
                       },
                     ),
@@ -84,7 +136,12 @@ class _DocumentsPageState extends ConsumerState<DocumentsPage> {
     );
   }
 
-  Widget _chip(String label, bool selected, VoidCallback onTap, [IconData? icon]) {
+  Widget _chip(
+    String label,
+    bool selected,
+    VoidCallback onTap, [
+    IconData? icon,
+  ]) {
     return Padding(
       padding: const EdgeInsetsDirectional.only(end: 8),
       child: FilterChip(

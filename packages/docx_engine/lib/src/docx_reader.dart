@@ -36,9 +36,9 @@ class DocxReader {
     _validateXml(source);
     final root = XmlDocument.parse(source);
     final body = root.descendants.whereType<XmlElement>().firstWhere(
-          (e) => e.name.local == 'body',
-          orElse: () => throw const FormatException('Missing document body.'),
-        );
+      (e) => e.name.local == 'body',
+      orElse: () => throw const FormatException('Missing document body.'),
+    );
     final operations = <Map<String, dynamic>>[];
     final warnings = <String>[];
     var listCounter = 0;
@@ -76,10 +76,14 @@ class DocxReader {
   ) {
     final pPr = child(paragraph, 'pPr');
     final blockAttributes = <String, dynamic>{};
-    final style = pPr == null ? null : attribute(child(pPr, 'pStyle') ?? _empty, 'val');
+    final style = pPr == null
+        ? null
+        : attribute(child(pPr, 'pStyle') ?? _empty, 'val');
     final header = _headingLevel(style);
     if (header != null) blockAttributes['header'] = header;
-    final align = pPr == null ? null : attribute(child(pPr, 'jc') ?? _empty, 'val');
+    final align = pPr == null
+        ? null
+        : attribute(child(pPr, 'jc') ?? _empty, 'val');
     if (align != null) {
       blockAttributes['align'] = switch (align) {
         'both' => 'justify',
@@ -94,7 +98,8 @@ class DocxReader {
     if (child(pPr ?? _empty, 'numPr') != null) {
       blockAttributes['list'] = 'bullet';
     }
-    if (enabled(pPr == null ? null : child(pPr, 'keepNext')) && header == null) {
+    if (enabled(pPr == null ? null : child(pPr, 'keepNext')) &&
+        header == null) {
       blockAttributes['blockquote'] = true;
     }
     for (final node in paragraph.descendants.whereType<XmlElement>()) {
@@ -104,8 +109,10 @@ class DocxReader {
           final attrs = run == null ? null : _runAttributes(run);
           final hyperlink = _ancestor(node, 'hyperlink');
           if (hyperlink != null) {
-            final target = attribute(hyperlink, 'id') ?? attribute(hyperlink, 'anchor');
-            if (target != null) (attrs ??= <String, dynamic>{})['link'] = target;
+            final target =
+                attribute(hyperlink, 'id') ?? attribute(hyperlink, 'anchor');
+            if (target != null)
+              (attrs ??= <String, dynamic>{})['link'] = target;
           }
           _insert(operations, node.innerText, attrs);
         case 'tab':
@@ -113,7 +120,10 @@ class DocxReader {
         case 'br' || 'cr':
           _insert(operations, '\n', null);
         case 'drawing' || 'pict':
-          _insert(operations, '[صورة محفوظة]', const {'italic': true, 'color': '#A8B3CF'});
+          _insert(operations, '[صورة محفوظة]', const {
+            'italic': true,
+            'color': '#A8B3CF',
+          });
         case 'oMath' || 'oMathPara':
           _insert(operations, '[معادلة محفوظة]', const {'italic': true});
       }
@@ -132,7 +142,8 @@ class DocxReader {
     if (enabled(child(props, 'i')) || enabled(child(props, 'iCs'))) {
       attrs['italic'] = true;
     }
-    if (enabled(child(props, 'u')) && attribute(child(props, 'u')!, 'val') != 'none') {
+    if (enabled(child(props, 'u')) &&
+        attribute(child(props, 'u')!, 'val') != 'none') {
       attrs['underline'] = true;
     }
     if (enabled(child(props, 'strike')) || enabled(child(props, 'dstrike'))) {
@@ -144,7 +155,10 @@ class DocxReader {
     if (highlight != null && highlight != 'none') {
       attrs['background'] = _highlight(highlight);
     }
-    final size = attribute(child(props, 'szCs') ?? child(props, 'sz') ?? _empty, 'val');
+    final size = attribute(
+      child(props, 'szCs') ?? child(props, 'sz') ?? _empty,
+      'val',
+    );
     final points = int.tryParse(size ?? '');
     if (points != null) attrs['size'] = '${points / 2}';
     final fonts = child(props, 'rFonts');
@@ -163,11 +177,13 @@ class DocxReader {
     for (final row in children(table, 'tr')) {
       final cells = <String>[];
       for (final cell in children(row, 'tc')) {
-        cells.add(cell.descendants
-            .whereType<XmlElement>()
-            .where((e) => e.name.local == 't')
-            .map((e) => e.innerText)
-            .join());
+        cells.add(
+          cell.descendants
+              .whereType<XmlElement>()
+              .where((e) => e.name.local == 't')
+              .map((e) => e.innerText)
+              .join(),
+        );
       }
       _insert(operations, cells.join('  |  '), null);
       _insert(operations, '\n', const {'blockquote': true});
@@ -239,7 +255,9 @@ class DocxReader {
 
   void _validateXml(String source) {
     if (RegExp(r'<!DOCTYPE|<!ENTITY', caseSensitive: false).hasMatch(source)) {
-      throw const FormatException('DTD and external XML entities are not allowed.');
+      throw const FormatException(
+        'DTD and external XML entities are not allowed.',
+      );
     }
     var depth = 0;
     for (final match in RegExp(r'<(/?)[A-Za-z_][^>]*>').allMatches(source)) {

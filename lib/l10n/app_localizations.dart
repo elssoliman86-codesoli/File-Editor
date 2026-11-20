@@ -73,9 +73,11 @@ class AppLocalizations {
     'privacy': 'خصوصيتك أولاً',
     'privacyBody': 'لا حسابات، ولا رفع للملفات، ولا تتبع. المعالجة والحفظ يتمان على جهازك.',
     'safeSaving': 'حفظ لا يتلف الأصل',
-    'safeSavingBody': 'نعمل على نسخة مستقلة، ولا نستبدل ملفك الأصلي إلا بطلب صريح منك.',
+    'safeSavingBody':
+        'نعمل على نسخة مستقلة، ولا نستبدل ملفك الأصلي إلا بطلب صريح منك.',
     'arabicFirst': 'العربية في القلب',
-    'arabicFirstBody': 'اتجاه RTL، خطوط عربية، بحث يتجاهل التشكيل، وتصدير بخطوط مضمّنة.',
+    'arabicFirstBody':
+        'اتجاه RTL، خطوط عربية، بحث يتجاهل التشكيل، وتصدير بخطوط مضمّنة.',
     'language': 'اللغة',
     'appearance': 'المظهر',
     'darkMode': 'الوضع الداكن',
@@ -137,7 +139,8 @@ class AppLocalizations {
     'favorite': 'إضافة إلى المفضلة',
     'unfavorite': 'إزالة من المفضلة',
     'confirmDelete': 'حذف نسخة العمل؟',
-    'confirmDeleteBody': 'سيُحذف سجل الاسترداد المحلي فقط. لن يُحذف ملفك الأصلي من مكانه.',
+    'confirmDeleteBody':
+        'سيُحذف سجل الاسترداد المحلي فقط. لن يُحذف ملفك الأصلي من مكانه.',
     'saveCopyExplanation': 'سيُنشئ مِداد ملفاً جديداً في المكان الذي تختاره ويتحقق منه بعد الكتابة.',
   };
 
@@ -153,7 +156,8 @@ class AppLocalizations {
     'recent': 'Recent documents',
     'favorites': 'Favorites',
     'emptyDocuments': 'No documents yet',
-    'emptyHint': 'Open a file or create a document. Your work stays on this device.',
+    'emptyHint':
+        'Open a file or create a document. Your work stays on this device.',
     'wordDocument': 'Word document',
     'textDocument': 'Text document',
     'pdfDocument': 'PDF document',
@@ -237,7 +241,8 @@ class AppLocalizations {
     'copyHash': 'Copy file hash',
     'retry': 'Retry',
     'errorOpen': 'Could not open this file. Check its format and integrity.',
-    'errorSave': 'Save failed. Your working copy and original were not affected.',
+    'errorSave':
+        'Save failed. Your working copy and original were not affected.',
     'pdfPassword': 'This PDF is protected. Enter its password',
     'password': 'Password',
     'unlock': 'Unlock',
@@ -273,7 +278,8 @@ class _AppLocalizationsDelegate
   bool isSupported(Locale locale) => ['ar', 'en'].contains(locale.languageCode);
 
   @override
-  Future<AppLocalizations> load(Locale locale) async => AppLocalizations(locale);
+  Future<AppLocalizations> load(Locale locale) async =>
+      AppLocalizations(locale);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;

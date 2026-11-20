@@ -4,8 +4,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app_settings.dart';
 
-final settingsProvider =
-    NotifierProvider<SettingsController, AppSettings>(SettingsController.new);
+final settingsProvider = NotifierProvider<SettingsController, AppSettings>(
+  SettingsController.new,
+);
 
 class SettingsController extends Notifier<AppSettings> {
   SharedPreferences? _preferences;

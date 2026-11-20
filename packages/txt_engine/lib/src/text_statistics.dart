@@ -1,5 +1,10 @@
 class TextStatistics {
-  const TextStatistics(this.characters, this.words, this.lines, this.paragraphs);
+  const TextStatistics(
+    this.characters,
+    this.words,
+    this.lines,
+    this.paragraphs,
+  );
   final int characters;
   final int words;
   final int lines;
@@ -7,14 +12,20 @@ class TextStatistics {
 
   factory TextStatistics.from(String text) {
     final normalized = text.replaceAll('\r\n', '\n').replaceAll('\r', '\n');
-    final words = RegExp(r'[\p{L}\p{N}]+(?:[\u2019'"'"'-][\p{L}\p{N}]+)*', unicode: true)
-        .allMatches(normalized)
-        .length;
+    final words = RegExp(
+      r'[\p{L}\p{N}]+(?:[\u2019'
+      "'"
+      '-][\p{L}\p{N}]+)*',
+      unicode: true,
+    ).allMatches(normalized).length;
     return TextStatistics(
       text.length,
       words,
       normalized.isEmpty ? 0 : '\n'.allMatches(normalized).length + 1,
-      RegExp(r'(?:\n\s*){2,}').split(normalized).where((p) => p.trim().isNotEmpty).length,
+      RegExp(r'(?:\n\s*){2,}')
+          .split(normalized)
+          .where((p) => p.trim().isNotEmpty)
+          .length,
     );
   }
 }

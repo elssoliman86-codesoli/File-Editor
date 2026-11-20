@@ -22,37 +22,90 @@ class PdfToolsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final tools = <(String, String, IconData, Color)>[
-      ('merge', l10n.t('merge'), Icons.merge_type_rounded, const Color(0xFFFF7D87)),
-      ('images', l10n.t('imagesToPdf'), Icons.collections_outlined, const Color(0xFFFFB020)),
-      ('organize', l10n.t('organize'), Icons.grid_view_rounded, const Color(0xFF5C9DFF)),
-      ('extract', l10n.t('extractPages'), Icons.content_cut_rounded, const Color(0xFF2ECC8F)),
+      (
+        'merge',
+        l10n.t('merge'),
+        Icons.merge_type_rounded,
+        const Color(0xFFFF7D87),
+      ),
+      (
+        'images',
+        l10n.t('imagesToPdf'),
+        Icons.collections_outlined,
+        const Color(0xFFFFB020),
+      ),
+      (
+        'organize',
+        l10n.t('organize'),
+        Icons.grid_view_rounded,
+        const Color(0xFF5C9DFF),
+      ),
+      (
+        'extract',
+        l10n.t('extractPages'),
+        Icons.content_cut_rounded,
+        const Color(0xFF2ECC8F),
+      ),
     ];
     return Scaffold(
       appBar: AppBar(title: Text(l10n.t('pdfTools'))),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Container(padding: const EdgeInsets.all(14), decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary.withValues(alpha: .08), borderRadius: BorderRadius.circular(16)), child: Text(l10n.t('pdfEditNotice'), style: const TextStyle(height: 1.7))),
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary
+                  .withValues(alpha: .08),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Text(
+              l10n.t('pdfEditNotice'),
+              style: const TextStyle(height: 1.7),
+            ),
+          ),
           const SizedBox(height: 16),
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 1.25, mainAxisSpacing: 12, crossAxisSpacing: 12),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 1.25,
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+            ),
             itemCount: tools.length,
             itemBuilder: (context, index) {
               final tool = tools[index];
               return Card(
                 child: InkWell(
                   borderRadius: BorderRadius.circular(16),
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => PdfToolWorkspace(mode: tool.$1))),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => PdfToolWorkspace(mode: tool.$1),
+                    ),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(18),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: tool.$4.withValues(alpha: .12), borderRadius: BorderRadius.circular(12)), child: Icon(tool.$3, color: tool.$4, size: 28)),
-                        Text(tool.$2, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: tool.$4.withValues(alpha: .12),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(tool.$3, color: tool.$4, size: 28),
+                        ),
+                        Text(
+                          tool.$2,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -112,31 +165,68 @@ class _PdfToolWorkspaceState extends ConsumerState<PdfToolWorkspace> {
               OutlinedButton.icon(
                 onPressed: _busy ? null : _pick,
                 icon: const Icon(Icons.add_rounded),
-                label: Text(widget.mode == 'images' ? l10n.t('addImages') : l10n.t('addFiles')),
+                label: Text(
+                  widget.mode == 'images'
+                      ? l10n.t('addImages')
+                      : l10n.t('addFiles'),
+                ),
               ),
               const SizedBox(height: 16),
               Expanded(
                 child: _records.isEmpty
-                    ? Center(child: Text(l10n.t('emptyHint'), textAlign: TextAlign.center))
+                    ? Center(
+                        child: Text(
+                          l10n.t('emptyHint'),
+                          textAlign: TextAlign.center,
+                        ),
+                      )
                     : ListView.separated(
                         itemCount: _records.length,
                         separatorBuilder: (_, _) => const SizedBox(height: 8),
                         itemBuilder: (context, index) => Card(
                           child: ListTile(
-                            leading: Icon(widget.mode == 'images' ? Icons.image_outlined : Icons.picture_as_pdf_outlined),
+                            leading: Icon(
+                              widget.mode == 'images'
+                                  ? Icons.image_outlined
+                                  : Icons.picture_as_pdf_outlined,
+                            ),
                             title: Text(_records[index].name),
-                            trailing: IconButton(onPressed: () => setState(() => _records.removeAt(index)), icon: const Icon(Icons.close_rounded)),
+                            trailing: IconButton(
+                              onPressed: () =>
+                                  setState(() => _records.removeAt(index)),
+                              icon: const Icon(Icons.close_rounded),
+                            ),
                           ),
                         ),
                       ),
               ),
               if (widget.mode == 'extract')
-                Padding(padding: const EdgeInsets.only(bottom: 16), child: TextField(controller: _range, decoration: InputDecoration(labelText: l10n.t('pageRange')))),
-              if (_busy) const Padding(padding: EdgeInsets.only(bottom: 16), child: LinearProgressIndicator()),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: TextField(
+                    controller: _range,
+                    decoration: InputDecoration(labelText: l10n.t('pageRange')),
+                  ),
+                ),
+              if (_busy)
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 16),
+                  child: LinearProgressIndicator(),
+                ),
               FilledButton.icon(
                 onPressed: _records.isEmpty || _busy ? null : _run,
-                icon: Icon(widget.mode == 'extract' ? Icons.content_cut_rounded : Icons.arrow_forward_rounded),
-                label: Text(widget.mode == 'images' ? l10n.t('createPdf') : widget.mode == 'extract' ? l10n.t('extractPages') : l10n.t('organize')),
+                icon: Icon(
+                  widget.mode == 'extract'
+                      ? Icons.content_cut_rounded
+                      : Icons.arrow_forward_rounded,
+                ),
+                label: Text(
+                  widget.mode == 'images'
+                      ? l10n.t('createPdf')
+                      : widget.mode == 'extract'
+                      ? l10n.t('extractPages')
+                      : l10n.t('organize'),
+                ),
               ),
             ],
           ),
@@ -148,17 +238,38 @@ class _PdfToolWorkspaceState extends ConsumerState<PdfToolWorkspace> {
   Future<void> _pick() async {
     setState(() => _busy = true);
     try {
-      final records = await ref.read(workspaceProvider).importFiles(multiple: widget.mode != 'extract', imagesOnly: widget.mode == 'images');
-      setState(() => _records.addAll(records.where((r) => widget.mode == 'images' ? r.kind == DocumentKind.image : r.kind == DocumentKind.pdf)));
+      final records = await ref
+          .read(workspaceProvider)
+          .importFiles(
+            multiple: widget.mode != 'extract',
+            imagesOnly: widget.mode == 'images',
+          );
+      setState(
+        () => _records.addAll(
+          records.where(
+            (r) => widget.mode == 'images'
+                ? r.kind == DocumentKind.image
+                : r.kind == DocumentKind.pdf,
+          ),
+        ),
+      );
     } finally {
       if (mounted) setState(() => _busy = false);
     }
   }
 
   Future<void> _run() async {
-    if (widget.mode == 'images') { await _imagesToPdf(); return; }
-    if (widget.mode == 'extract') { await _extract(); return; }
-    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => PdfOrganizerPage(records: _records)));
+    if (widget.mode == 'images') {
+      await _imagesToPdf();
+      return;
+    }
+    if (widget.mode == 'extract') {
+      await _extract();
+      return;
+    }
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => PdfOrganizerPage(records: _records)),
+    );
   }
 
   Future<void> _imagesToPdf() async {
@@ -166,18 +277,28 @@ class _PdfToolWorkspaceState extends ConsumerState<PdfToolWorkspace> {
     PdfDocument? output;
     final sources = <PdfDocument>[];
     try {
-      output = await PdfDocument.createNew(sourceName: 'midad-images-${DateTime.now().microsecondsSinceEpoch}');
+      output = await PdfDocument.createNew(
+        sourceName: 'midad-images-${DateTime.now().microsecondsSinceEpoch}',
+      );
       final pages = <PdfPage>[];
       for (final record in _records) {
         final bytes = await File(record.originalPath).readAsBytes();
         final codec = await ui.instantiateImageCodec(bytes, targetWidth: 2000);
         final frame = await codec.getNextFrame();
-        final rgba = await frame.image.toByteData(format: ui.ImageByteFormat.rawRgba);
-        final jpeg = await rgbaToJpeg(rgba!.buffer.asUint8List(), frame.image.width, frame.image.height);
+        final rgba = await frame.image.toByteData(
+          format: ui.ImageByteFormat.rawRgba,
+        );
+        final jpeg = await rgbaToJpeg(
+          rgba!.buffer.asUint8List(),
+          frame.image.width,
+          frame.image.height,
+        );
         final source = await PdfDocument.createFromJpegData(
           jpeg,
           width: 595,
-          height: (595 * frame.image.height / frame.image.width).clamp(100, 842).toDouble(),
+          height: (595 * frame.image.height / frame.image.width)
+              .clamp(100, 842)
+              .toDouble(),
           sourceName: record.name,
         );
         sources.add(source);
@@ -187,10 +308,20 @@ class _PdfToolWorkspaceState extends ConsumerState<PdfToolWorkspace> {
       }
       output.pages = pages;
       final bytes = await output.encodePdf();
-      await DocumentExportService(ref.read(storageChannelProvider)).save(name: 'images-${DateTime.now().millisecondsSinceEpoch}.pdf', kind: DocumentKind.pdf, bytes: bytes);
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.t('savedVerified'))));
+      await DocumentExportService(ref.read(storageChannelProvider)).save(
+        name: 'images-${DateTime.now().millisecondsSinceEpoch}.pdf',
+        kind: DocumentKind.pdf,
+        bytes: bytes,
+      );
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.t('savedVerified'))),
+        );
     } catch (error) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${context.l10n.t('errorSave')}\n$error')));
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${context.l10n.t('errorSave')}\n$error')),
+        );
     } finally {
       for (final source in sources) await source.dispose();
       await output?.dispose();
@@ -208,10 +339,19 @@ class _PdfToolWorkspaceState extends ConsumerState<PdfToolWorkspace> {
       output = await PdfDocument.createNew(sourceName: 'midad-extract');
       output.pages = pages.map((number) => source!.pages[number - 1]).toList();
       final bytes = await output.encodePdf();
-      await DocumentExportService(ref.read(storageChannelProvider)).save(name: 'extract-${DateTime.now().millisecondsSinceEpoch}.pdf', kind: DocumentKind.pdf, bytes: bytes);
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.t('savedVerified'))));
+      await DocumentExportService(ref.read(storageChannelProvider)).save(
+        name: 'extract-${DateTime.now().millisecondsSinceEpoch}.pdf',
+        kind: DocumentKind.pdf,
+        bytes: bytes,
+      );
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.t('savedVerified'))),
+        );
     } catch (error) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$error')));
+      if (mounted)
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('$error')));
     } finally {
       await output?.dispose();
       await source?.dispose();

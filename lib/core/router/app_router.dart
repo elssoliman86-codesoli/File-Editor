@@ -16,10 +16,22 @@ import '../providers/app_providers.dart';
 final appRouter = GoRouter(
   initialLocation: '/home',
   routes: [
-    GoRoute(path: '/home', builder: (context, state) => const HomeShell(initialIndex: 0)),
-    GoRoute(path: '/documents', builder: (context, state) => const HomeShell(initialIndex: 1)),
-    GoRoute(path: '/pdf-tools', builder: (context, state) => const HomeShell(initialIndex: 2)),
-    GoRoute(path: '/settings', builder: (context, state) => const HomeShell(initialIndex: 3)),
+    GoRoute(
+      path: '/home',
+      builder: (context, state) => const HomeShell(initialIndex: 0),
+    ),
+    GoRoute(
+      path: '/documents',
+      builder: (context, state) => const HomeShell(initialIndex: 1),
+    ),
+    GoRoute(
+      path: '/pdf-tools',
+      builder: (context, state) => const HomeShell(initialIndex: 2),
+    ),
+    GoRoute(
+      path: '/settings',
+      builder: (context, state) => const HomeShell(initialIndex: 3),
+    ),
     GoRoute(
       path: '/document/:id',
       builder: (context, state) => Consumer(
@@ -29,9 +41,20 @@ final appRouter = GoRouter(
         ),
       ),
     ),
-    GoRoute(path: '/templates', builder: (context, state) => const TemplatesPage()),
-    GoRoute(path: '/pdf-organize/:id', builder: (context, state) => PdfOrganizerPage(recordId: state.pathParameters['id']!)),
-    GoRoute(path: '/pdf-tool/:mode', builder: (context, state) => PdfToolWorkspace(mode: state.pathParameters['mode']!)),
+    GoRoute(
+      path: '/templates',
+      builder: (context, state) => const TemplatesPage(),
+    ),
+    GoRoute(
+      path: '/pdf-organize/:id',
+      builder: (context, state) =>
+          PdfOrganizerPage(recordId: state.pathParameters['id']!),
+    ),
+    GoRoute(
+      path: '/pdf-tool/:mode',
+      builder: (context, state) =>
+          PdfToolWorkspace(mode: state.pathParameters['mode']!),
+    ),
     GoRoute(path: '/about', builder: (context, state) => const AboutPage()),
   ],
 );
@@ -65,12 +88,11 @@ class _DocumentOpenerState extends State<DocumentOpener> {
       .txt => TxtEditorPage(record: record),
       _ => PdfToolWorkspace(mode: 'images', initialRecord: record),
     };
-    await Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => page));
+    await Navigator.of(context)
+        .pushReplacement(MaterialPageRoute(builder: (_) => page));
   }
 
   @override
-  Widget build(BuildContext context) => const Scaffold(
-    body: Center(child: CircularProgressIndicator()),
-  );
+  Widget build(BuildContext context) =>
+      const Scaffold(body: Center(child: CircularProgressIndicator()));
 }
-

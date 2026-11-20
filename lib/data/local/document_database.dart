@@ -31,7 +31,9 @@ class DocumentDatabase {
             last_saved_hash TEXT
           )
         ''');
-        await db.execute('CREATE INDEX documents_recent ON documents(last_opened DESC)');
+        await db.execute(
+          'CREATE INDEX documents_recent ON documents(last_opened DESC)',
+        );
         await db.execute('''
           CREATE TABLE reading_positions (
             document_id TEXT PRIMARY KEY,

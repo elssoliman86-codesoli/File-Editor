@@ -17,11 +17,9 @@ import '../models/document_record.dart';
 import '../models/editor_session.dart';
 
 class WorkspaceRepository {
-  WorkspaceRepository({
-    DocumentDatabase? database,
-    AtomicFileStore? files,
-  }) : _database = database ?? DocumentDatabase(),
-       _files = files ?? const AtomicFileStore();
+  WorkspaceRepository({DocumentDatabase? database, AtomicFileStore? files})
+    : _database = database ?? DocumentDatabase(),
+      _files = files ?? const AtomicFileStore();
 
   final DocumentDatabase _database;
   final AtomicFileStore _files;
@@ -32,7 +30,8 @@ class WorkspaceRepository {
   Future<Directory> get workspace async {
     if (_workspace != null) return _workspace!;
     final root = await getApplicationDocumentsDirectory();
-    _workspace = await Directory(p.join(root.path, 'workspace')).create(recursive: true);
+    _workspace = await Directory(p.join(root.path, 'workspace'))
+        .create(recursive: true);
     return _workspace!;
   }
 
@@ -44,40 +43,78 @@ class WorkspaceRepository {
 
   Future<DocumentRecord?> byId(String id) async {
     final db = await _database.instance;
-    final rows = await db.query('documents', where: 'id = ?', whereArgs: [id], limit: 1);
+    final rows = await db.query(
+      'documents',
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
     return rows.isEmpty ? null : DocumentRecord.fromMap(rows.first);
   }
 
-  Future<List<DocumentRecord>> importFiles({bool multiple = false, bool imagesOnly = false}) async {
+  Future<List<DocumentRecord>> importFiles({
+    bool multiple = false,
+    bool imagesOnly = false,
+  }) async {
     final result = await FilePicker.platform.pickFiles(
       allowMultiple: multiple,
       withData: true,
       type: FileType.custom,
       allowedExtensions: imagesOnly
           ? const ['jpg', 'jpeg', 'png', 'webp']
-          : const ['docx', 'dotx', 'docm', 'pdf', 'txt', 'md', 'json', 'xml', 'html', 'csv', 'log', 'jpg', 'jpeg', 'png', 'webp'],
+          : const [
+              'docx',
+              'dotx',
+              'docm',
+              'pdf',
+              'txt',
+              'md',
+              'json',
+              'xml',
+              'html',
+              'csv',
+              'log',
+              'jpg',
+              'jpeg',
+              'png',
+              'webp',
+            ],
     );
     if (result == null) return const [];
     final records = <DocumentRecord>[];
     for (final file in result.files) {
       Uint8List? bytes = file.bytes;
-      if (bytes == null && file.path != null) bytes = await File(file.path!).readAsBytes();
+      if (bytes == null && file.path != null)
+        bytes = await File(file.path!).readAsBytes();
       if (bytes == null) continue;
-      if (bytes.length > 64 * 1024 * 1024) throw const DocumentFailure('File exceeds the 64 MB import limit.');
-      final kind = DocumentKind.fromName(file.name, header: bytes.take(8).toList());
+      if (bytes.length > 64 * 1024 * 1024)
+        throw const DocumentFailure('File exceeds the 64 MB import limit.');
+      final kind = DocumentKind.fromName(
+        file.name,
+        header: bytes.take(8).toList(),
+      );
       if (kind == DocumentKind.unknown) continue;
-      records.add(await importBytes(file.name, bytes, sourceUri: file.identifier));
+      records.add(
+        await importBytes(file.name, bytes, sourceUri: file.identifier),
+      );
     }
     return records;
   }
 
-  Future<DocumentRecord> importBytes(String name, List<int> bytes, {String? sourceUri}) async {
+  Future<DocumentRecord> importBytes(
+    String name,
+    List<int> bytes, {
+    String? sourceUri,
+  }) async {
     final kind = DocumentKind.fromName(name, header: bytes.take(8).toList());
     final id = DateTime.now().microsecondsSinceEpoch.toRadixString(36);
     final root = await workspace;
-    final directory = await Directory(p.join(root.path, id)).create(recursive: true);
+    final directory = await Directory(p.join(root.path, id))
+        .create(recursive: true);
     final safeName = _files.safeName(name, kind.defaultExtension);
-    final original = File(p.join(directory.path, 'original.${kind.defaultExtension}'));
+    final original = File(
+      p.join(directory.path, 'original.${kind.defaultExtension}'),
+    );
     await _files.write(original, bytes);
     final payload = File(p.join(directory.path, _payloadName(kind)));
     String text = '';
@@ -124,14 +161,21 @@ class WorkspaceRepository {
   }) async {
     final id = DateTime.now().microsecondsSinceEpoch.toRadixString(36);
     final root = await workspace;
-    final directory = await Directory(p.join(root.path, id)).create(recursive: true);
-    final original = File(p.join(directory.path, 'original.${kind.defaultExtension}'));
+    final directory = await Directory(p.join(root.path, id))
+        .create(recursive: true);
+    final original = File(
+      p.join(directory.path, 'original.${kind.defaultExtension}'),
+    );
     final payload = File(p.join(directory.path, _payloadName(kind)));
     List<int> bytes;
     if (kind == DocumentKind.docx) {
       final ops = operations.isEmpty
           ? <Map<String, dynamic>>[
-              {'insert': '\n', 'attributes': {'direction': defaultRtl ? 'rtl' : null}..removeWhere((k, v) => v == null)},
+              {
+                'insert': '\n',
+                'attributes': {'direction': defaultRtl ? 'rtl' : null}
+                  ..removeWhere((k, v) => v == null),
+              },
             ]
           : operations;
       final result = _docx.save(ops);
@@ -164,13 +208,23 @@ class WorkspaceRepository {
 
   Future<EditorSession> loadSession(DocumentRecord record) async {
     if (record.kind == DocumentKind.docx) {
-      final ops = _decodeOperations(await File(record.payloadPath).readAsString());
+      final ops = _decodeOperations(
+        await File(record.payloadPath).readAsString(),
+      );
       DocxDocument? original;
       if (await File(record.originalPath).exists()) {
-        original = await compute(_openDocx, await File(record.originalPath).readAsBytes());
+        original = await compute(
+          _openDocx,
+          await File(record.originalPath).readAsBytes(),
+        );
       }
       await touch(record);
-      return EditorSession(record: record, text: '', operations: ops, originalDocx: original);
+      return EditorSession(
+        record: record,
+        text: '',
+        operations: ops,
+        originalDocx: original,
+      );
     }
     final text = await File(record.payloadPath).readAsString();
     await touch(record);
@@ -188,12 +242,14 @@ class WorkspaceRepository {
         ? utf8.encode(jsonEncode(operations ?? const []))
         : utf8.encode(text ?? '');
     await _files.write(File(record.payloadPath), bytes);
-    await _upsert(record.copyWith(
-      updatedAt: DateTime.now().millisecondsSinceEpoch,
-      dirty: true,
-      encoding: encoding,
-      eol: eol,
-    ));
+    await _upsert(
+      record.copyWith(
+        updatedAt: DateTime.now().millisecondsSinceEpoch,
+        dirty: true,
+        encoding: encoding,
+        eol: eol,
+      ),
+    );
   }
 
   Future<Uint8List> buildDocument(
@@ -205,10 +261,13 @@ class WorkspaceRepository {
     bool bom = false,
   }) async {
     if (session.kind == DocumentKind.docx) {
-      final result = await compute(_saveDocx, _DocxSaveInput(
-        operations ?? session.operations,
-        session.originalDocx?.originalBytes,
-      ));
+      final result = await compute(
+        _saveDocx,
+        _DocxSaveInput(
+          operations ?? session.operations,
+          session.originalDocx?.originalBytes,
+        ),
+      );
       return result;
     }
     return _codec.encode(
@@ -221,21 +280,25 @@ class WorkspaceRepository {
 
   Future<void> markExported(DocumentRecord record, Uint8List bytes) async {
     await _files.write(File(record.originalPath), bytes);
-    await _upsert(record.copyWith(
-      dirty: false,
-      updatedAt: DateTime.now().millisecondsSinceEpoch,
-      lastSavedHash: sha256.convert(bytes).toString(),
-    ));
+    await _upsert(
+      record.copyWith(
+        dirty: false,
+        updatedAt: DateTime.now().millisecondsSinceEpoch,
+        lastSavedHash: sha256.convert(bytes).toString(),
+      ),
+    );
   }
 
-  Future<void> touch(DocumentRecord record) =>
-      _upsert(record.copyWith(lastOpened: DateTime.now().millisecondsSinceEpoch));
+  Future<void> touch(DocumentRecord record) => _upsert(
+    record.copyWith(lastOpened: DateTime.now().millisecondsSinceEpoch),
+  );
 
   Future<void> toggleFavorite(DocumentRecord record) =>
       _upsert(record.copyWith(favorite: !record.favorite));
 
-  Future<void> rename(DocumentRecord record, String name) =>
-      _upsert(record.copyWith(name: _files.safeName(name, record.kind.defaultExtension)));
+  Future<void> rename(DocumentRecord record, String name) => _upsert(
+    record.copyWith(name: _files.safeName(name, record.kind.defaultExtension)),
+  );
 
   Future<void> remove(DocumentRecord record) async {
     final db = await _database.instance;
@@ -246,7 +309,11 @@ class WorkspaceRepository {
 
   Future<void> _upsert(DocumentRecord record) async {
     final db = await _database.instance;
-    await db.insert('documents', record.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+    await db.insert(
+      'documents',
+      record.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
   String _payloadName(DocumentKind kind) => switch (kind) {
@@ -259,8 +326,12 @@ class WorkspaceRepository {
 DocxDocument _openDocx(Uint8List bytes) => const DocxEngine().open(bytes);
 
 Uint8List _saveDocx(_DocxSaveInput input) {
-  final original = input.originalBytes == null ? null : const DocxEngine().open(input.originalBytes!);
-  return Uint8List.fromList(const DocxEngine().save(input.operations, original: original).bytes);
+  final original = input.originalBytes == null
+      ? null
+      : const DocxEngine().open(input.originalBytes!);
+  return Uint8List.fromList(
+    const DocxEngine().save(input.operations, original: original).bytes,
+  );
 }
 
 class _DocxSaveInput {

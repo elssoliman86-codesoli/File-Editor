@@ -24,7 +24,9 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
 
   Future<void> _finish() async {
     final settings = ref.read(settingsProvider);
-    await ref.read(settingsProvider.notifier).update(settings.copyWith(onboardingDone: true));
+    await ref
+        .read(settingsProvider.notifier)
+        .update(settings.copyWith(onboardingDone: true));
   }
 
   @override
@@ -33,7 +35,11 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
     final items = [
       (Icons.shield_outlined, l10n.t('privacy'), l10n.t('privacyBody')),
       (Icons.save_outlined, l10n.t('safeSaving'), l10n.t('safeSavingBody')),
-      (Icons.translate_rounded, l10n.t('arabicFirst'), l10n.t('arabicFirstBody')),
+      (
+        Icons.translate_rounded,
+        l10n.t('arabicFirst'),
+        l10n.t('arabicFirstBody'),
+      ),
     ];
     return Scaffold(
       body: Container(
@@ -51,21 +57,38 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
               children: [
                 Align(
                   alignment: AlignmentDirectional.centerEnd,
-                  child: TextButton(onPressed: _finish, child: Text(l10n.t('skip'))),
+                  child: TextButton(
+                    onPressed: _finish,
+                    child: Text(l10n.t('skip')),
+                  ),
                 ),
                 const Spacer(),
                 Container(
                   width: 76,
                   height: 76,
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(colors: [AppPalette.electricBlue, AppPalette.cyan]),
+                    gradient: const LinearGradient(
+                      colors: [AppPalette.electricBlue, AppPalette.cyan],
+                    ),
                     borderRadius: BorderRadius.circular(24),
                   ),
-                  child: const Icon(Icons.edit_note_rounded, color: Colors.white, size: 42),
+                  child: const Icon(
+                    Icons.edit_note_rounded,
+                    color: Colors.white,
+                    size: 42,
+                  ),
                 ),
                 const SizedBox(height: 24),
-                Text(l10n.t('appName'), style: Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w700)),
-                Text(l10n.t('appTagline'), style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppPalette.textSecondary)),
+                Text(
+                  l10n.t('appName'),
+                  style: Theme.of(context).textTheme.displaySmall
+                      ?.copyWith(fontWeight: FontWeight.w700),
+                ),
+                Text(
+                  l10n.t('appTagline'),
+                  style: Theme.of(context).textTheme.titleMedium
+                      ?.copyWith(color: AppPalette.textSecondary),
+                ),
                 const SizedBox(height: 40),
                 SizedBox(
                   height: 250,
@@ -79,9 +102,21 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                         children: [
                           Icon(item.$1, size: 48, color: AppPalette.cyan),
                           const SizedBox(height: 20),
-                          Text(item.$2, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700)),
+                          Text(
+                            item.$2,
+                            style: Theme.of(context).textTheme.headlineSmall
+                                ?.copyWith(fontWeight: FontWeight.w700),
+                          ),
                           const SizedBox(height: 16),
-                          Text(item.$3, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.8, color: AppPalette.textSecondary)),
+                          Text(
+                            item.$3,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodyLarge
+                                ?.copyWith(
+                                  height: 1.8,
+                                  color: AppPalette.textSecondary,
+                                ),
+                          ),
                         ],
                       );
                     },
@@ -89,13 +124,21 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(items.length, (index) => AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    margin: const EdgeInsets.all(4),
-                    width: index == _index ? 24 : 8,
-                    height: 8,
-                    decoration: BoxDecoration(color: index == _index ? AppPalette.cyan : Colors.white24, borderRadius: BorderRadius.circular(8)),
-                  )),
+                  children: List.generate(
+                    items.length,
+                    (index) => AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      margin: const EdgeInsets.all(4),
+                      width: index == _index ? 24 : 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: index == _index
+                            ? AppPalette.cyan
+                            : Colors.white24,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
                 ),
                 const Spacer(),
                 SizedBox(
@@ -105,10 +148,17 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                       if (_index == items.length - 1) {
                         _finish();
                       } else {
-                        _controller.nextPage(duration: const Duration(milliseconds: 250), curve: Curves.easeOut);
+                        _controller.nextPage(
+                          duration: const Duration(milliseconds: 250),
+                          curve: Curves.easeOut,
+                        );
                       }
                     },
-                    child: Text(_index == items.length - 1 ? l10n.t('start') : l10n.t('next')),
+                    child: Text(
+                      _index == items.length - 1
+                          ? l10n.t('start')
+                          : l10n.t('next'),
+                    ),
                   ),
                 ),
               ],

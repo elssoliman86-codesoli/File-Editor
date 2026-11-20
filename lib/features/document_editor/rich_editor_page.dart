@@ -51,7 +51,9 @@ class _RichEditorPageState extends ConsumerState<RichEditorPage> {
 
   Future<void> _load() async {
     try {
-      final session = await ref.read(workspaceProvider).loadSession(widget.record);
+      final session = await ref
+          .read(workspaceProvider)
+          .loadSession(widget.record);
       if (!mounted) return;
       _session = session;
       _controller.document = Document.fromJson(session.operations);
@@ -78,10 +80,14 @@ class _RichEditorPageState extends ConsumerState<RichEditorPage> {
   Future<void> _saveRecovery() async {
     final session = _session;
     if (session == null) return;
-    await ref.read(workspaceProvider).saveRecovery(session.record, operations: _operations);
+    await ref
+        .read(workspaceProvider)
+        .saveRecovery(session.record, operations: _operations);
   }
 
-  List<Map<String, dynamic>> get _operations => _controller.document.toDelta().toJson()
+  List<Map<String, dynamic>> get _operations => _controller.document
+      .toDelta()
+      .toJson()
       .map((item) => Map<String, dynamic>.from(item as Map))
       .toList();
 
@@ -89,7 +95,11 @@ class _RichEditorPageState extends ConsumerState<RichEditorPage> {
   void dispose() {
     _autosave?.cancel();
     if (_session != null) {
-      unawaited(ref.read(workspaceProvider).saveRecovery(_session!.record, operations: _operations));
+      unawaited(
+        ref
+            .read(workspaceProvider)
+            .saveRecovery(_session!.record, operations: _operations),
+      );
     }
     _controller.dispose();
     _focusNode.dispose();
@@ -102,9 +112,18 @@ class _RichEditorPageState extends ConsumerState<RichEditorPage> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     if (_loadError != null) {
-      return Scaffold(appBar: AppBar(), body: Center(child: Padding(padding: const EdgeInsets.all(24), child: Text('${l10n.t('errorOpen')}\n$_loadError'))));
+      return Scaffold(
+        appBar: AppBar(),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text('${l10n.t('errorOpen')}\n$_loadError'),
+          ),
+        ),
+      );
     }
-    if (_session == null) return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    if (_session == null)
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     final stats = TextStatistics.from(_controller.document.toPlainText());
     return PopScope(
       canPop: false,
@@ -118,13 +137,34 @@ class _RichEditorPageState extends ConsumerState<RichEditorPage> {
           titleSpacing: 0,
           title: TextField(
             controller: _nameController,
-            decoration: const InputDecoration(border: InputBorder.none, fillColor: Colors.transparent, filled: false, isDense: true),
+            decoration: const InputDecoration(
+              border: InputBorder.none,
+              fillColor: Colors.transparent,
+              filled: false,
+              isDense: true,
+            ),
             style: const TextStyle(fontWeight: FontWeight.w700),
-            onChanged: (_) => ref.read(workspaceProvider).rename(widget.record, _nameController.text),
+            onChanged: (_) => ref
+                .read(workspaceProvider)
+                .rename(widget.record, _nameController.text),
           ),
           actions: [
-            IconButton(tooltip: l10n.t('search'), onPressed: () => setState(() => _searchVisible = !_searchVisible), icon: const Icon(Icons.search_rounded)),
-            IconButton(tooltip: l10n.t('save'), onPressed: _saving ? null : _saveDocx, icon: _saving ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.save_outlined)),
+            IconButton(
+              tooltip: l10n.t('search'),
+              onPressed: () => setState(() => _searchVisible = !_searchVisible),
+              icon: const Icon(Icons.search_rounded),
+            ),
+            IconButton(
+              tooltip: l10n.t('save'),
+              onPressed: _saving ? null : _saveDocx,
+              icon: _saving
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.save_outlined),
+            ),
             PopupMenuButton<String>(
               onSelected: _menuAction,
               itemBuilder: (_) => [
@@ -139,21 +179,35 @@ class _RichEditorPageState extends ConsumerState<RichEditorPage> {
         body: SafeArea(
           child: Column(
             children: [
-              CompatibilityBanner(message: l10n.t('docxEditNotice'), onDetails: _showWarnings),
+              CompatibilityBanner(
+                message: l10n.t('docxEditNotice'),
+                onDetails: _showWarnings,
+              ),
               if (_searchVisible)
                 SearchReplaceBar(
                   source: _controller.document.toPlainText(),
                   onChanged: (_) {},
-                  onNavigate: (match) => _controller.updateSelection(TextSelection(baseOffset: match.start, extentOffset: match.end), ChangeSource.local),
+                  onNavigate: (match) => _controller.updateSelection(
+                    TextSelection(
+                      baseOffset: match.start,
+                      extentOffset: match.end,
+                    ),
+                    ChangeSource.local,
+                  ),
                   onReplaceAll: _replaceAll,
                   onClose: () => setState(() => _searchVisible = false),
                 ),
               Expanded(
                 child: Container(
-                  color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF111827) : const Color(0xFFE9EDF5),
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xFF111827)
+                      : const Color(0xFFE9EDF5),
                   alignment: Alignment.topCenter,
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 18),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 18,
+                    ),
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 820),
                       child: Material(
@@ -161,7 +215,10 @@ class _RichEditorPageState extends ConsumerState<RichEditorPage> {
                         elevation: 4,
                         shadowColor: Colors.black26,
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 28),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 28,
+                          ),
                           child: QuillEditor(
                             controller: _controller,
                             focusNode: _focusNode,
@@ -175,7 +232,14 @@ class _RichEditorPageState extends ConsumerState<RichEditorPage> {
                               placeholder: l10n.t('selectTemplate'),
                               customStyles: DefaultStyles(
                                 paragraph: DefaultTextBlockStyle(
-                                  TextStyle(fontFamily: 'NotoNaskhArabic', fontSize: ref.watch(settingsProvider).editorFontSize, color: Colors.black87, height: 1.7),
+                                  TextStyle(
+                                    fontFamily: 'NotoNaskhArabic',
+                                    fontSize: ref
+                                        .watch(settingsProvider)
+                                        .editorFontSize,
+                                    color: Colors.black87,
+                                    height: 1.7,
+                                  ),
                                   const HorizontalSpacing(0, 0),
                                   const VerticalSpacing(0, 8),
                                   const VerticalSpacing(0, 0),
@@ -223,11 +287,22 @@ class _RichEditorPageState extends ConsumerState<RichEditorPage> {
                       padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
                       child: Row(
                         children: [
-                          IconButton.filledTonal(tooltip: 'Insert image', onPressed: _insertImage, icon: const Icon(Icons.image_outlined)),
+                          IconButton.filledTonal(
+                            tooltip: 'Insert image',
+                            onPressed: _insertImage,
+                            icon: const Icon(Icons.image_outlined),
+                          ),
                           const SizedBox(width: 8),
-                          IconButton.filledTonal(tooltip: 'Page break', onPressed: _insertPageBreak, icon: const Icon(Icons.insert_page_break_outlined)),
+                          IconButton.filledTonal(
+                            tooltip: 'Page break',
+                            onPressed: _insertPageBreak,
+                            icon: const Icon(Icons.insert_page_break_outlined),
+                          ),
                           const Spacer(),
-                          Text('${stats.words} ${l10n.t('words')} · ${stats.characters} ${l10n.t('characters')}', style: Theme.of(context).textTheme.bodySmall),
+                          Text(
+                            '${stats.words} ${l10n.t('words')} · ${stats.characters} ${l10n.t('characters')}',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
                         ],
                       ),
                     ),
@@ -242,16 +317,25 @@ class _RichEditorPageState extends ConsumerState<RichEditorPage> {
   }
 
   Future<void> _insertImage() async {
-    final image = await ImagePicker().pickImage(source: ImageSource.gallery, maxWidth: 2000, imageQuality: 88);
+    final image = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 2000,
+      imageQuality: 88,
+    );
     if (image == null) return;
     final bytes = await image.readAsBytes();
     if (bytes.length > 20 * 1024 * 1024) return;
-    final mime = image.name.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg';
+    final mime = image.name.toLowerCase().endsWith('.png')
+        ? 'image/png'
+        : 'image/jpeg';
     final data = 'data:$mime;base64,${base64Encode(bytes)}';
     final index = _controller.selection.extentOffset;
     _controller
       ..replaceText(index, 0, BlockEmbed.image(data), null)
-      ..updateSelection(TextSelection.collapsed(offset: index + 1), ChangeSource.local);
+      ..updateSelection(
+        TextSelection.collapsed(offset: index + 1),
+        ChangeSource.local,
+      );
   }
 
   void _insertPageBreak() {
@@ -261,33 +345,62 @@ class _RichEditorPageState extends ConsumerState<RichEditorPage> {
       ..formatText(index, 1, Attribute.clone(Attribute.blockQuote, true));
   }
 
-  void _replaceAll(({String query, String replacement, SearchOptions options}) request) {
+  void _replaceAll(
+    ({String query, String replacement, SearchOptions options}) request,
+  ) {
     final ops = _operations;
-    final matches = const TextSearchEngine().findAll(_controller.document.toPlainText(), request.query, options: request.options);
+    final matches = const TextSearchEngine().findAll(
+      _controller.document.toPlainText(),
+      request.query,
+      options: request.options,
+    );
     if (matches.isEmpty) return;
     var logical = 0;
     final updated = <Map<String, dynamic>>[];
     for (final op in ops) {
       final insert = op['insert'];
-      if (insert is! String) { updated.add(op); logical++; continue; }
+      if (insert is! String) {
+        updated.add(op);
+        logical++;
+        continue;
+      }
       final end = logical + insert.length;
-      final relevant = matches.where((m) => m.start >= logical && m.end <= end).toList();
-      if (relevant.isEmpty) { updated.add(op); logical = end; continue; }
+      final relevant = matches
+          .where((m) => m.start >= logical && m.end <= end)
+          .toList();
+      if (relevant.isEmpty) {
+        updated.add(op);
+        logical = end;
+        continue;
+      }
       var cursor = 0;
       for (final match in relevant) {
         final start = match.start - logical;
         final stop = match.end - logical;
         if (start < cursor) continue;
-        if (start > cursor) updated.add({'insert': insert.substring(cursor, start), if (op['attributes'] != null) 'attributes': op['attributes']});
-        updated.add({'insert': request.replacement, if (op['attributes'] != null) 'attributes': op['attributes']});
+        if (start > cursor)
+          updated.add({
+            'insert': insert.substring(cursor, start),
+            if (op['attributes'] != null) 'attributes': op['attributes'],
+          });
+        updated.add({
+          'insert': request.replacement,
+          if (op['attributes'] != null) 'attributes': op['attributes'],
+        });
         cursor = stop;
       }
-      if (cursor < insert.length) updated.add({'insert': insert.substring(cursor), if (op['attributes'] != null) 'attributes': op['attributes']});
+      if (cursor < insert.length)
+        updated.add({
+          'insert': insert.substring(cursor),
+          if (op['attributes'] != null) 'attributes': op['attributes'],
+        });
       logical = end;
     }
     _controller.document = Document.fromJson(updated);
     setState(() => _dirty = true);
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${matches.length} ${context.l10n.t('replace')}')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${matches.length} ${context.l10n.t('replace')}')),
+    );
   }
 
   Future<void> _menuAction(String action) async {
@@ -295,24 +408,40 @@ class _RichEditorPageState extends ConsumerState<RichEditorPage> {
     final text = _controller.document.toPlainText();
     try {
       if (action == 'pdf') {
-        final bytes = await exporter.textToPdf(title: _nameController.text, text: text);
+        final bytes = await exporter.textToPdf(
+          title: _nameController.text,
+          text: text,
+        );
         await _saveBytes('${_baseName()}.pdf', DocumentKind.pdf, bytes);
       } else if (action == 'txt') {
-        await _saveBytes('${_baseName()}.txt', DocumentKind.txt, Uint8List.fromList(utf8.encode(text)));
+        await _saveBytes(
+          '${_baseName()}.txt',
+          DocumentKind.txt,
+          Uint8List.fromList(utf8.encode(text)),
+        );
       } else if (action == 'share') {
         final bytes = await _buildDocx();
-        await exporter.share(_nameController.text, bytes, DocumentKind.docx.mimeType);
+        await exporter.share(
+          _nameController.text,
+          bytes,
+          DocumentKind.docx.mimeType,
+        );
       } else if (action == 'print') {
         await exporter.printText(title: _nameController.text, text: text);
       }
     } catch (error) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${context.l10n.t('errorSave')}\n$error')));
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${context.l10n.t('errorSave')}\n$error')),
+        );
     }
   }
 
   Future<Uint8List> _buildDocx() async {
     final session = _session!;
-    return ref.read(workspaceProvider).buildDocument(session, operations: _operations);
+    return ref
+        .read(workspaceProvider)
+        .buildDocument(session, operations: _operations);
   }
 
   Future<void> _saveDocx() async {
@@ -324,15 +453,31 @@ class _RichEditorPageState extends ConsumerState<RichEditorPage> {
       await ref.read(workspaceProvider).markExported(widget.record, bytes);
       if (mounted) setState(() => _dirty = false);
     } catch (error) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${context.l10n.t('errorSave')}\n$error')));
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${context.l10n.t('errorSave')}\n$error')),
+        );
     } finally {
       if (mounted) setState(() => _saving = false);
     }
   }
 
-  Future<void> _saveBytes(String name, DocumentKind kind, Uint8List bytes) async {
-    final receipt = await DocumentExportService(ref.read(storageChannelProvider)).save(name: name, kind: kind, bytes: bytes);
-    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${context.l10n.t('savedVerified')} · ${receipt.byteCount} bytes')));
+  Future<void> _saveBytes(
+    String name,
+    DocumentKind kind,
+    Uint8List bytes,
+  ) async {
+    final receipt = await DocumentExportService(
+      ref.read(storageChannelProvider),
+    ).save(name: name, kind: kind, bytes: bytes);
+    if (mounted)
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${context.l10n.t('savedVerified')} · ${receipt.byteCount} bytes',
+          ),
+        ),
+      );
   }
 
   String _baseName() {
@@ -342,7 +487,24 @@ class _RichEditorPageState extends ConsumerState<RichEditorPage> {
   }
 
   void _showWarnings() {
-    showDialog<void>(context: context, builder: (context) => AlertDialog(title: Text(context.l10n.t('compatibility')), content: Text([...?_session?.originalDocx?.warnings, context.l10n.t('docxEditNotice')].join('\n\n')), actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(context.l10n.t('close')))]));
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(context.l10n.t('compatibility')),
+        content: Text(
+          [
+            ...?_session?.originalDocx?.warnings,
+            context.l10n.t('docxEditNotice'),
+          ].join('\n\n'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(context.l10n.t('close')),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -356,10 +518,16 @@ class _Base64ImageEmbedBuilder extends EmbedBuilder {
   Widget build(BuildContext context, EmbedContext embedContext) {
     final data = embedContext.node.value.data as String;
     try {
-      final bytes = base64Decode(data.contains(',') ? data.split(',').last : data);
+      final bytes = base64Decode(
+        data.contains(',') ? data.split(',').last : data,
+      );
       return ConstrainedBox(
         constraints: const BoxConstraints(maxHeight: 480),
-        child: Image.memory(bytes, fit: BoxFit.contain, semanticLabel: 'Document image'),
+        child: Image.memory(
+          bytes,
+          fit: BoxFit.contain,
+          semanticLabel: 'Document image',
+        ),
       );
     } on FormatException {
       return const Text('[Image unavailable]');

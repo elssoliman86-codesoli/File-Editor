@@ -4,12 +4,17 @@ import '../../data/models/document_record.dart';
 import '../../data/platform/storage_channel.dart';
 import '../../data/repositories/workspace_repository.dart';
 
-final workspaceProvider = Provider<WorkspaceRepository>((ref) => WorkspaceRepository());
-final storageChannelProvider = Provider<StorageChannel>((ref) => const StorageChannel());
-
-final documentsProvider = NotifierProvider<DocumentsController, List<DocumentRecord>>(
-  DocumentsController.new,
+final workspaceProvider = Provider<WorkspaceRepository>(
+  (ref) => WorkspaceRepository(),
 );
+final storageChannelProvider = Provider<StorageChannel>(
+  (ref) => const StorageChannel(),
+);
+
+final documentsProvider =
+    NotifierProvider<DocumentsController, List<DocumentRecord>>(
+      DocumentsController.new,
+    );
 
 class DocumentsController extends Notifier<List<DocumentRecord>> {
   @override

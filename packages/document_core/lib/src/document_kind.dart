@@ -24,8 +24,13 @@ enum DocumentKind {
     return switch (extension) {
       'docx' || 'dotx' || 'docm' => DocumentKind.docx,
       'pdf' => DocumentKind.pdf,
-      'txt' || 'md' || 'json' || 'xml' || 'html' || 'csv' || 'log' =>
-        DocumentKind.txt,
+      'txt' ||
+      'md' ||
+      'json' ||
+      'xml' ||
+      'html' ||
+      'csv' ||
+      'log' => DocumentKind.txt,
       'jpg' || 'jpeg' || 'png' || 'webp' => DocumentKind.image,
       _ => DocumentKind.unknown,
     };

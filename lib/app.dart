@@ -38,7 +38,9 @@ class MidadApp extends ConsumerWidget {
       themeMode: settings.themeMode,
       routerConfig: appRouter,
       builder: (context, child) {
-        return settings.onboardingDone ? child ?? const SizedBox.shrink() : const OnboardingPage();
+        return settings.onboardingDone
+            ? child ?? const SizedBox.shrink()
+            : const OnboardingPage();
       },
     );
   }

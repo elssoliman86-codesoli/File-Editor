@@ -1,5 +1,10 @@
 class DocumentTemplate {
-  const DocumentTemplate({required this.id, required this.titleKey, required this.description, required this.content});
+  const DocumentTemplate({
+    required this.id,
+    required this.titleKey,
+    required this.description,
+    required this.content,
+  });
   final String id;
   final String titleKey;
   final String description;
@@ -11,7 +16,11 @@ class DocumentTemplate {
     for (var i = 0; i < lines.length; i++) {
       final line = lines[i];
       if (line.isEmpty) {
-        operations.add({'insert': '\n', 'attributes': {'direction': rtl ? 'rtl' : null}..removeWhere((k, v) => v == null)});
+        operations.add({
+          'insert': '\n',
+          'attributes': {'direction': rtl ? 'rtl' : null}
+            ..removeWhere((k, v) => v == null),
+        });
         continue;
       }
       final heading = line.startsWith('# ');
@@ -20,7 +29,11 @@ class DocumentTemplate {
       final text = line.replaceFirst(RegExp(r'^#{1,2} |^• '), '');
       operations.add({
         'insert': text,
-        'attributes': {if (heading || subheading) 'bold': true, if (heading) 'size': '24', if (subheading) 'size': '19'},
+        'attributes': {
+          if (heading || subheading) 'bold': true,
+          if (heading) 'size': '24',
+          if (subheading) 'size': '19',
+        },
       });
       operations.add({
         'insert': '\n',

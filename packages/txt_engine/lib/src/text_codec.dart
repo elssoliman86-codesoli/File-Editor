@@ -50,7 +50,9 @@ class TextCodec {
     bool bom = false,
   }) {
     final normalized = text.replaceAll('\r\n', '\n').replaceAll('\r', '\n');
-    final outputText = eol == '\n' ? normalized : normalized.replaceAll('\n', eol);
+    final outputText = eol == '\n'
+        ? normalized
+        : normalized.replaceAll('\n', eol);
     final List<int> content;
     switch (encoding) {
       case 'utf-16le':

@@ -31,12 +31,13 @@ class TextSearchEngine {
   }) {
     if (query.isEmpty) return const [];
     if (options.regex) {
-      return RegExp(
-        query,
-        caseSensitive: options.caseSensitive,
-      ).allMatches(source).where((m) => m.end > m.start).map((m) {
-        return TextMatch(m.start, m.end, m.group(0)!);
-      }).toList(growable: false);
+      return RegExp(query, caseSensitive: options.caseSensitive)
+          .allMatches(source)
+          .where((m) => m.end > m.start)
+          .map((m) {
+            return TextMatch(m.start, m.end, m.group(0)!);
+          })
+          .toList(growable: false);
     }
     final normalizer = const ArabicNormalizer();
     final normalizedSource = options.normalizeArabic
@@ -57,7 +58,9 @@ class TextSearchEngine {
       if (!options.wholeWord || _isWholeWord(haystack, index, end)) {
         final start = normalizedSource?.sourceStart(index) ?? index;
         final sourceEnd = normalizedSource?.sourceEnd(end) ?? end;
-        matches.add(TextMatch(start, sourceEnd, source.substring(start, sourceEnd)));
+        matches.add(
+          TextMatch(start, sourceEnd, source.substring(start, sourceEnd)),
+        );
       }
       from = end;
     }
@@ -92,13 +95,17 @@ class TextSearchEngine {
   String _expandReplacement(String template, Match match) {
     return template.replaceAllMapped(RegExp(r'\$(\d+)'), (ref) {
       final group = int.parse(ref.group(1)!);
-      return group <= match.groupCount ? match.group(group) ?? '' : ref.group(0)!;
+      return group <= match.groupCount
+          ? match.group(group) ?? ''
+          : ref.group(0)!;
     });
   }
 
   bool _isWholeWord(String text, int start, int end) {
-    bool word(int codePoint) => RegExp(r'[\p{L}\p{N}_]', unicode: true)
-        .hasMatch(String.fromCharCode(codePoint));
+    bool word(int codePoint) => RegExp(
+      r'[\p{L}\p{N}_]',
+      unicode: true,
+    ).hasMatch(String.fromCharCode(codePoint));
     final before = start > 0 && word(text.substring(0, start).runes.last);
     final after = end < text.length && word(text.substring(end).runes.first);
     return !before && !after;

@@ -9,7 +9,9 @@ import '../../data/repositories/workspace_repository.dart';
 import '../providers/app_providers.dart';
 import '../router/app_router.dart';
 
-final externalDocumentServiceProvider = Provider<ExternalDocumentService>((ref) {
+final externalDocumentServiceProvider = Provider<ExternalDocumentService>((
+  ref,
+) {
   final service = ExternalDocumentService(ref);
   unawaited(service.initialize());
   ref.onDispose(service.dispose);
@@ -24,13 +26,17 @@ class ExternalDocumentService {
   Future<void> initialize() async {
     if (!Platform.isAndroid) return;
     _channel.setMethodCallHandler(_handle);
-    final initial = await _channel.invokeMethod<Map<Object?, Object?>>('getInitialDocument');
+    final initial = await _channel.invokeMethod<Map<Object?, Object?>>(
+      'getInitialDocument',
+    );
     await _open(initial);
-    if (initial != null) await _channel.invokeMethod<void>('consumeInitialDocument');
+    if (initial != null)
+      await _channel.invokeMethod<void>('consumeInitialDocument');
   }
 
   Future<void> _handle(MethodCall call) async {
-    if (call.method == 'onDocumentIntent') await _open(call.arguments as Map<Object?, Object?>?);
+    if (call.method == 'onDocumentIntent')
+      await _open(call.arguments as Map<Object?, Object?>?);
   }
 
   Future<void> _open(Map<Object?, Object?>? payload) async {
@@ -39,11 +45,13 @@ class ExternalDocumentService {
     if (path == null) return;
     final file = File(path);
     try {
-      final record = await _ref.read(workspaceProvider).importBytes(
-        payload['name'] as String? ?? 'shared-document',
-        await file.readAsBytes(),
-        sourceUri: payload['uri'] as String?,
-      );
+      final record = await _ref
+          .read(workspaceProvider)
+          .importBytes(
+            payload['name'] as String? ?? 'shared-document',
+            await file.readAsBytes(),
+            sourceUri: payload['uri'] as String?,
+          );
       await _ref.read(documentsProvider.notifier).refresh();
       appRouter.go('/document/${record.id}');
     } finally {

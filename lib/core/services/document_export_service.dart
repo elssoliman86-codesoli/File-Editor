@@ -21,18 +21,30 @@ class DocumentExportService {
     required DocumentKind kind,
     required Uint8List bytes,
   }) async {
-    final receipt = await _storage.saveCopy(name: name, mimeType: kind.mimeType, bytes: bytes);
+    final receipt = await _storage.saveCopy(
+      name: name,
+      mimeType: kind.mimeType,
+      bytes: bytes,
+    );
     if (!receipt.verified || receipt.sha256.isEmpty) {
-      throw const DocumentFailure('The destination did not pass read-back verification.');
+      throw const DocumentFailure(
+        'The destination did not pass read-back verification.',
+      );
     }
     return receipt;
   }
 
   Future<void> share(String name, Uint8List bytes, String mimeType) async {
     final directory = await Directory.systemTemp.createTemp('midad-share-');
-    final file = await File('${directory.path}/$name').writeAsBytes(bytes, flush: true);
+    final file = await File('${directory.path}/$name')
+        .writeAsBytes(bytes, flush: true);
     try {
-      await SharePlus.instance.share(ShareParams(files: [XFile(file.path, mimeType: mimeType)], text: name));
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(file.path, mimeType: mimeType)],
+          text: name,
+        ),
+      );
     } finally {
       Future.delayed(const Duration(minutes: 5), () async {
         if (await directory.exists()) await directory.delete(recursive: true);
@@ -57,10 +69,17 @@ class DocumentExportService {
     required String text,
     bool rtl = true,
   }) async {
-    final font = await rootBundle.load('assets/fonts/NotoNaskhArabic-Variable.ttf');
+    final font = await rootBundle.load(
+      'assets/fonts/NotoNaskhArabic-Variable.ttf',
+    );
     return compute(
       _generateTextPdf,
-      _PdfInput(title: title, text: text, rtl: rtl, fontBytes: font.buffer.asUint8List()),
+      _PdfInput(
+        title: title,
+        text: text,
+        rtl: rtl,
+        fontBytes: font.buffer.asUint8List(),
+      ),
     );
   }
 }
@@ -69,8 +88,15 @@ Future<Uint8List> _generateTextPdf(_PdfInput input) async {
   final fontData = ByteData.view(input.fontBytes.buffer);
   final font = pw.Font.ttf(fontData);
   final bold = pw.Font.ttf(fontData);
-  final document = pw.Document(title: input.title, author: 'Midad', creator: 'Midad');
-  final paragraphs = input.text.replaceAll('\r\n', '\n').replaceAll('\r', '\n').split('\n');
+  final document = pw.Document(
+    title: input.title,
+    author: 'Midad',
+    creator: 'Midad',
+  );
+  final paragraphs = input.text
+      .replaceAll('\r\n', '\n')
+      .replaceAll('\r', '\n')
+      .split('\n');
   document.addPage(
     pw.MultiPage(
       pageFormat: PdfPageFormat.a4,
@@ -79,18 +105,38 @@ Future<Uint8List> _generateTextPdf(_PdfInput input) async {
       theme: pw.ThemeData.withFont(base: font, bold: bold),
       header: (context) => pw.Container(
         padding: const pw.EdgeInsets.only(bottom: 12),
-        decoration: const pw.BoxDecoration(border: pw.Border(bottom: pw.BorderSide(color: PdfColors.blueGrey200))),
+        decoration: const pw.BoxDecoration(
+          border: pw.Border(
+            bottom: pw.BorderSide(color: PdfColors.blueGrey200),
+          ),
+        ),
         child: pw.Row(
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
           children: [
-            pw.Text(input.title, style: pw.TextStyle(font: bold, fontSize: 11, color: PdfColors.blueGrey700)),
-            pw.Text('Midad', style: const pw.TextStyle(fontSize: 9, color: PdfColors.blueGrey400)),
+            pw.Text(
+              input.title,
+              style: pw.TextStyle(
+                font: bold,
+                fontSize: 11,
+                color: PdfColors.blueGrey700,
+              ),
+            ),
+            pw.Text(
+              'Midad',
+              style: const pw.TextStyle(
+                fontSize: 9,
+                color: PdfColors.blueGrey400,
+              ),
+            ),
           ],
         ),
       ),
       footer: (context) => pw.Align(
         alignment: pw.Alignment.center,
-        child: pw.Text('${context.pageNumber} / ${context.pagesCount}', style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey600)),
+        child: pw.Text(
+          '${context.pageNumber} / ${context.pagesCount}',
+          style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey600),
+        ),
       ),
       build: (context) => [
         for (final paragraph in paragraphs)
@@ -98,7 +144,9 @@ Future<Uint8List> _generateTextPdf(_PdfInput input) async {
             padding: const pw.EdgeInsets.only(bottom: 9),
             child: pw.Text(
               paragraph.isEmpty ? ' ' : paragraph,
-              textDirection: input.rtl ? pw.TextDirection.rtl : pw.TextDirection.ltr,
+              textDirection: input.rtl
+                  ? pw.TextDirection.rtl
+                  : pw.TextDirection.ltr,
               textAlign: input.rtl ? pw.TextAlign.right : pw.TextAlign.left,
               style: pw.TextStyle(font: font, fontSize: 15, height: 1.65),
             ),
@@ -110,7 +158,12 @@ Future<Uint8List> _generateTextPdf(_PdfInput input) async {
 }
 
 class _PdfInput {
-  const _PdfInput({required this.title, required this.text, required this.rtl, required this.fontBytes});
+  const _PdfInput({
+    required this.title,
+    required this.text,
+    required this.rtl,
+    required this.fontBytes,
+  });
   final String title;
   final String text;
   final bool rtl;
@@ -127,4 +180,5 @@ String deltaToPlainText(List<Map<String, dynamic>> operations) {
   return output.toString();
 }
 
-String operationsAsJson(List<Map<String, dynamic>> operations) => jsonEncode(operations);
+String operationsAsJson(List<Map<String, dynamic>> operations) =>
+    jsonEncode(operations);

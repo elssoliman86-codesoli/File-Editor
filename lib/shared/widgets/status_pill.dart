@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
 class StatusPill extends StatelessWidget {
-  const StatusPill({required this.label, required this.color, this.icon, super.key});
+  const StatusPill({
+    required this.label,
+    required this.color,
+    this.icon,
+    super.key,
+  });
   final String label;
   final Color color;
   final IconData? icon;
@@ -20,8 +25,21 @@ class StatusPill extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (icon != null) ...[Icon(icon, size: 14, color: color), const SizedBox(width: 5)],
-            Flexible(child: Text(label, overflow: TextOverflow.ellipsis, style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w700))),
+            if (icon != null) ...[
+              Icon(icon, size: 14, color: color),
+              const SizedBox(width: 5),
+            ],
+            Flexible(
+              child: Text(
+                label,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
           ],
         ),
       ),

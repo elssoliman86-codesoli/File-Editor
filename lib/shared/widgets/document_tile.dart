@@ -35,9 +35,8 @@ class DocumentTile extends StatelessWidget {
       DocumentKind.txt => Icons.notes_rounded,
       _ => Icons.image_outlined,
     };
-    final date = DateFormat.yMMMd(Localizations.localeOf(context).languageCode).format(
-      DateTime.fromMillisecondsSinceEpoch(record.lastOpened),
-    );
+    final date = DateFormat.yMMMd(Localizations.localeOf(context).languageCode)
+        .format(DateTime.fromMillisecondsSinceEpoch(record.lastOpened));
     return Card(
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
@@ -60,16 +59,50 @@ class DocumentTile extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(record.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+                    Text(
+                      record.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15,
+                      ),
+                    ),
                     const SizedBox(height: 6),
                     Row(
                       children: [
-                        Flexible(child: Text(date, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant))),
+                        Flexible(
+                          child: Text(
+                            date,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
+                            ),
+                          ),
+                        ),
                         if (record.dirty) ...[
                           const SizedBox(width: 8),
-                          Container(width: 6, height: 6, decoration: const BoxDecoration(color: Color(0xFFFFB020), shape: BoxShape.circle)),
+                          Container(
+                            width: 6,
+                            height: 6,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFFFB020),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
                           const SizedBox(width: 4),
-                          Flexible(child: Text(context.l10n.t('unsaved'), overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 11, color: Color(0xFFFFB020)))),
+                          Flexible(
+                            child: Text(
+                              context.l10n.t('unsaved'),
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: Color(0xFFFFB020),
+                              ),
+                            ),
+                          ),
                         ],
                       ],
                     ),
@@ -78,16 +111,28 @@ class DocumentTile extends StatelessWidget {
               ),
               if (onFavorite != null)
                 IconButton(
-                  tooltip: record.favorite ? context.l10n.t('unfavorite') : context.l10n.t('favorite'),
+                  tooltip: record.favorite
+                      ? context.l10n.t('unfavorite')
+                      : context.l10n.t('favorite'),
                   onPressed: onFavorite,
-                  icon: Icon(record.favorite ? Icons.star_rounded : Icons.star_outline_rounded, color: record.favorite ? const Color(0xFFFFB020) : null),
+                  icon: Icon(
+                    record.favorite
+                        ? Icons.star_rounded
+                        : Icons.star_outline_rounded,
+                    color: record.favorite ? const Color(0xFFFFB020) : null,
+                  ),
                 ),
               if (onDelete != null)
                 PopupMenuButton<String>(
                   onSelected: (value) {
                     if (value == 'delete') onDelete!();
                   },
-                  itemBuilder: (_) => [PopupMenuItem(value: 'delete', child: Text(context.l10n.t('removeRecent')))],
+                  itemBuilder: (_) => [
+                    PopupMenuItem(
+                      value: 'delete',
+                      child: Text(context.l10n.t('removeRecent')),
+                    ),
+                  ],
                 ),
             ],
           ),

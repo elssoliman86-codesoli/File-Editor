@@ -42,7 +42,10 @@ class DocumentRecord {
     favorite: map['favorite']! as int == 1,
     dirty: map['dirty']! as int == 1,
     encoding: map['encoding']! as String,
-    eol: (map['eol']! as String).replaceAll('CRLF', '\r\n').replaceAll('LF', '\n').replaceAll('CR', '\r'),
+    eol: (map['eol']! as String)
+        .replaceAll('CRLF', '\r\n')
+        .replaceAll('LF', '\n')
+        .replaceAll('CR', '\r'),
     sourceUri: map['source_uri'] as String?,
     lastSavedHash: map['last_saved_hash'] as String?,
   );
@@ -58,7 +61,11 @@ class DocumentRecord {
     'favorite': favorite ? 1 : 0,
     'dirty': dirty ? 1 : 0,
     'encoding': encoding,
-    'eol': switch (eol) { '\r\n' => 'CRLF', '\r' => 'CR', _ => 'LF' },
+    'eol': switch (eol) {
+      '\r\n' => 'CRLF',
+      '\r' => 'CR',
+      _ => 'LF',
+    },
     'source_uri': sourceUri,
     'last_saved_hash': lastSavedHash,
   };

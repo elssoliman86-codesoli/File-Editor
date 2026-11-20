@@ -6,7 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:midad/app.dart';
 
 void main() {
-  testWidgets('shows an honest empty workspace and Arabic navigation', (tester) async {
+  testWidgets('shows an honest empty workspace and Arabic navigation', (
+    tester,
+  ) async {
     SharedPreferences.setMockInitialValues({'onboarded': true});
     await tester.pumpWidget(const ProviderScope(child: MidadApp()));
     await tester.pump();

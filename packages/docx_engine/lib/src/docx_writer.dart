@@ -52,11 +52,17 @@ class DocxWriter {
   }
 
   List<Map<String, dynamic>> _normalize(List<Map<String, dynamic>> source) {
-    final result = source.map((operation) => <String, dynamic>{
-      ...operation,
-      if (operation['attributes'] is Map)
-        'attributes': Map<String, dynamic>.from(operation['attributes'] as Map),
-    }).toList();
+    final result = source
+        .map(
+          (operation) => <String, dynamic>{
+            ...operation,
+            if (operation['attributes'] is Map)
+              'attributes': Map<String, dynamic>.from(
+                operation['attributes'] as Map,
+              ),
+          },
+        )
+        .toList();
     if (result.isEmpty || result.last['insert'] != '\n') {
       result.add(const {'insert': '\n'});
     }
@@ -83,7 +89,9 @@ class DocxWriter {
           });
         } else {
           (paragraphs.last['runs'] ??= <Map<String, dynamic>>[]).add({
-            'text': insert.keys.first == 'hr' ? '────────────────' : '[محتوى مضمّن]',
+            'text': insert.keys.first == 'hr'
+                ? '────────────────'
+                : '[محتوى مضمّن]',
             'attributes': attributes,
           });
         }
@@ -112,12 +120,9 @@ class DocxWriter {
           : const <String, dynamic>{};
       final isList = block['list'] == 'bullet' || block['list'] == 'ordered';
       if (isList) listLevel++;
-      body.write(_paragraphXml(
-        paragraph,
-        block,
-        imageNames,
-        isList ? listLevel : 0,
-      ));
+      body.write(
+        _paragraphXml(paragraph, block, imageNames, isList ? listLevel : 0),
+      );
       if (!isList) listLevel = 0;
     }
     return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
@@ -166,27 +171,36 @@ class DocxWriter {
     if (align != null) pPr.write('<w:jc w:val="$align"/>');
     if (listId > 0) {
       final numId = block['list'] == 'ordered' ? 2 : 1;
-      pPr.write('<w:numPr><w:ilvl w:val="0"/><w:numId w:val="$numId"/></w:numPr>');
+      pPr.write(
+        '<w:numPr><w:ilvl w:val="0"/><w:numId w:val="$numId"/></w:numPr>',
+      );
     }
     if (block['blockquote'] == true) {
-      pPr.write('<w:ind w:start="567"/><w:pBdr><w:start w:val="single" w:sz="12" '
-          'w:space="8" w:color="2F7BFF"/></w:pBdr>');
+      pPr.write(
+        '<w:ind w:start="567"/><w:pBdr><w:start w:val="single" w:sz="12" '
+        'w:space="8" w:color="2F7BFF"/></w:pBdr>',
+      );
     }
     final indent = block['indent'];
     if (indent is num && indent > 0) {
       pPr.write('<w:ind w:start="${(indent * 360).round()}"/>');
     }
-    pPr.write('<w:spacing w:after="120" w:line="276" w:lineRule="auto"/></w:pPr>');
+    pPr.write(
+      '<w:spacing w:after="120" w:line="276" w:lineRule="auto"/></w:pPr>',
+    );
     final runs = StringBuffer();
-    for (final run in paragraph['runs'] as List<Map<String, dynamic>>? ?? const []) {
+    for (final run
+        in paragraph['runs'] as List<Map<String, dynamic>>? ?? const []) {
       final attrs = run['attributes'] as Map<String, dynamic>? ?? const {};
       final rPr = _runProperties(attrs, block['direction'] == 'rtl');
       final imageIndex = run['imageIndex'] as int?;
       if (imageIndex != null && imageNames.containsKey(imageIndex)) {
         runs.write(_imageRun(imageNames[imageIndex]!, rPr));
       } else {
-        runs.write('<w:r>$rPr<w:t xml:space="preserve">'
-            '${escapeXml(run['text'] as String? ?? '')}</w:t></w:r>');
+        runs.write(
+          '<w:r>$rPr<w:t xml:space="preserve">'
+          '${escapeXml(run['text'] as String? ?? '')}</w:t></w:r>',
+        );
       }
     }
     return '<w:p>$pPr$runs</w:p>';
@@ -194,8 +208,10 @@ class DocxWriter {
 
   String _runProperties(Map<String, dynamic> attrs, bool paragraphRtl) {
     final xml = StringBuffer('<w:rPr>');
-    xml.write('<w:rFonts w:ascii="Noto Naskh Arabic" w:hAnsi="Noto Naskh Arabic" '
-        'w:cs="${escapeXml(attrs['font']?.toString() ?? 'Noto Naskh Arabic')}"/>');
+    xml.write(
+      '<w:rFonts w:ascii="Noto Naskh Arabic" w:hAnsi="Noto Naskh Arabic" '
+      'w:cs="${escapeXml(attrs['font']?.toString() ?? 'Noto Naskh Arabic')}"/>',
+    );
     if (attrs['bold'] == true) xml.write('<w:b/><w:bCs/>');
     if (attrs['italic'] == true) xml.write('<w:i/><w:iCs/>');
     if (attrs['underline'] == true) xml.write('<w:u w:val="single"/>');
@@ -203,10 +219,12 @@ class DocxWriter {
     final color = _hexColor(attrs['color']);
     if (color != null) xml.write('<w:color w:val="$color"/>');
     final background = _hexColor(attrs['background']);
-    if (background != null) xml.write('<w:shd w:val="clear" w:fill="$background"/>');
+    if (background != null)
+      xml.write('<w:shd w:val="clear" w:fill="$background"/>');
     final size = halfPoints(attrs['size'], 28);
     xml.write('<w:sz w:val="$size"/><w:szCs w:val="$size"/>');
-    if (attrs['script'] == 'super') xml.write('<w:vertAlign w:val="superscript"/>');
+    if (attrs['script'] == 'super')
+      xml.write('<w:vertAlign w:val="superscript"/>');
     if (attrs['script'] == 'sub') xml.write('<w:vertAlign w:val="subscript"/>');
     if (paragraphRtl || attrs['direction'] == 'rtl') xml.write('<w:rtl/>');
     xml.write('<w:lang w:val="en-US" w:bidi="ar-EG"/></w:rPr>');
@@ -246,20 +264,24 @@ class DocxWriter {
 
   void _ensureStyles(Map<String, List<int>> package) {
     if (package.containsKey('word/styles.xml')) return;
-    final styles = StringBuffer('<?xml version="1.0" encoding="UTF-8"?>'
-        '<w:styles xmlns:w="$wordNamespace">'
-        '<w:docDefaults><w:rPrDefault><w:rPr>'
-        '<w:rFonts w:ascii="Noto Naskh Arabic" w:cs="Noto Naskh Arabic"/>'
-        '<w:sz w:val="28"/><w:szCs w:val="28"/></w:rPr></w:rPrDefault></w:docDefaults>'
-        '<w:style w:type="paragraph" w:default="1" w:styleId="Normal">'
-        '<w:name w:val="Normal"/></w:style>');
+    final styles = StringBuffer(
+      '<?xml version="1.0" encoding="UTF-8"?>'
+      '<w:styles xmlns:w="$wordNamespace">'
+      '<w:docDefaults><w:rPrDefault><w:rPr>'
+      '<w:rFonts w:ascii="Noto Naskh Arabic" w:cs="Noto Naskh Arabic"/>'
+      '<w:sz w:val="28"/><w:szCs w:val="28"/></w:rPr></w:rPrDefault></w:docDefaults>'
+      '<w:style w:type="paragraph" w:default="1" w:styleId="Normal">'
+      '<w:name w:val="Normal"/></w:style>',
+    );
     for (var level = 1; level <= 6; level++) {
-      styles.write('<w:style w:type="paragraph" w:styleId="Heading$level">'
-          '<w:name w:val="heading $level"/><w:basedOn w:val="Normal"/>'
-          '<w:next w:val="Normal"/><w:pPr><w:keepNext/>'
-          '<w:spacing w:before="${360 - level * 30}" w:after="160"/></w:pPr>'
-          '<w:rPr><w:b/><w:bCs/><w:sz w:val="${44 - level * 4}"/>'
-          '<w:szCs w:val="${44 - level * 4}"/></w:rPr></w:style>');
+      styles.write(
+        '<w:style w:type="paragraph" w:styleId="Heading$level">'
+        '<w:name w:val="heading $level"/><w:basedOn w:val="Normal"/>'
+        '<w:next w:val="Normal"/><w:pPr><w:keepNext/>'
+        '<w:spacing w:before="${360 - level * 30}" w:after="160"/></w:pPr>'
+        '<w:rPr><w:b/><w:bCs/><w:sz w:val="${44 - level * 4}"/>'
+        '<w:szCs w:val="${44 - level * 4}"/></w:rPr></w:style>',
+      );
     }
     package['word/styles.xml'] = utf8.encode('$styles</w:styles>');
   }
@@ -308,7 +330,8 @@ class DocxWriter {
           warnings.add('An external image path could not be embedded.');
         }
       }
-      if (bytes == null || bytes.isEmpty || bytes.length > 20 * 1024 * 1024) continue;
+      if (bytes == null || bytes.isEmpty || bytes.length > 20 * 1024 * 1024)
+        continue;
       final name = 'image$id.$extension';
       package['word/media/$name'] = bytes;
       names[index] = name;
@@ -330,7 +353,10 @@ class DocxWriter {
         ...RegExp(r'<Relationship\b[^>]+/>')
             .allMatches(utf8.decode(existing))
             .map((m) => m[0]!)
-            .where((xml) => !xml.contains('/styles"') && !xml.contains('/numbering"')),
+            .where(
+              (xml) =>
+                  !xml.contains('/styles"') && !xml.contains('/numbering"'),
+            ),
       for (final name in images.values.toSet())
         '<Relationship Id="rId$name" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/$name"/>',
     ];
@@ -351,8 +377,10 @@ class DocxWriter {
       additions.write('<Default Extension="jpg" ContentType="image/jpeg"/>');
     }
     if (!types.contains('/word/numbering.xml')) {
-      additions.write('<Override PartName="/word/numbering.xml" '
-          'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml"/>');
+      additions.write(
+        '<Override PartName="/word/numbering.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml"/>',
+      );
     }
     package[contentPath] = utf8.encode(
       types.replaceFirst('</Types>', '$additions</Types>'),
@@ -360,7 +388,13 @@ class DocxWriter {
   }
 
   static const _blockKeys = {
-    'header', 'align', 'direction', 'list', 'blockquote', 'code-block', 'indent',
+    'header',
+    'align',
+    'direction',
+    'list',
+    'blockquote',
+    'code-block',
+    'indent',
   };
 }
 
@@ -370,7 +404,8 @@ class _ImageResult {
   final List<String> warnings;
 }
 
-const _contentTypes = '<?xml version="1.0" encoding="UTF-8"?>'
+const _contentTypes =
+    '<?xml version="1.0" encoding="UTF-8"?>'
     '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
     '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
     '<Default Extension="xml" ContentType="application/xml"/>'
@@ -383,14 +418,16 @@ const _contentTypes = '<?xml version="1.0" encoding="UTF-8"?>'
     '<Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>'
     '</Types>';
 
-const _rootRelationships = '<?xml version="1.0" encoding="UTF-8"?>'
+const _rootRelationships =
+    '<?xml version="1.0" encoding="UTF-8"?>'
     '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
     '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>'
     '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/>'
     '<Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/>'
     '</Relationships>';
 
-final _coreProperties = '<?xml version="1.0" encoding="UTF-8"?>'
+final _coreProperties =
+    '<?xml version="1.0" encoding="UTF-8"?>'
     '<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" '
     'xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" '
     'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
@@ -398,6 +435,7 @@ final _coreProperties = '<?xml version="1.0" encoding="UTF-8"?>'
     '<dcterms:created xsi:type="dcterms:W3CDTF">${DateTime.now().toUtc().toIso8601String()}</dcterms:created>'
     '</cp:coreProperties>';
 
-const _appProperties = '<?xml version="1.0" encoding="UTF-8"?>'
+const _appProperties =
+    '<?xml version="1.0" encoding="UTF-8"?>'
     '<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties">'
     '<Application>Midad</Application></Properties>';
