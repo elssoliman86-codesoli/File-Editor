@@ -33,8 +33,12 @@ jobs:
       - name: Resolve pinned packages
         run: |
           mkdir -p build/logs
-          set -o pipefail
-          flutter pub get -v 2>&1 | tee build/logs/pub-get.log
+          set +e
+          flutter pub get -v > build/logs/pub-get.log 2>&1
+          status=$?
+          tail -120 build/logs/pub-get.log
+          echo "PUB_GET_EXIT=$status"
+          exit $status
       - name: Upload dependency failure log
         if: failure()
         uses: actions/upload-artifact@v4
