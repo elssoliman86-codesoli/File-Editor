@@ -21,7 +21,7 @@ void main() {
 
   test('UTF-16 big endian survives Arabic text', () {
     final bytes = codec.encode('أ ب ت 123', encoding: 'utf-16be');
-    expect(bytes.take(2), [0, 0]);
+    expect(bytes.take(2), [0x06, 0x23]);
     expect(codec.decode(bytes, requestedEncoding: 'utf-16be').text, 'أ ب ت 123');
   });
 
@@ -29,6 +29,25 @@ void main() {
     const sample = 'العربية English 123';
     expect(codec.decode(codec.encode(sample, encoding: 'iso-8859-6')).text, sample);
     expect(() => codec.encode('٢٠٢٦', encoding: 'iso-8859-6'), throwsFormatException);
+  });
+
+
+  test('UTF-8 without BOM preserves the first three bytes', () {
+    const sample = 'ABC بداية عربية';
+    final bytes = codec.encode(sample);
+    final decoded = codec.decode(bytes);
+    expect(decoded.hadBom, isFalse);
+    expect(decoded.text, sample);
+  });
+
+  test('UTF-16 without BOM preserves the first code unit', () {
+    const sample = 'أ ب ت';
+    for (final encoding in ['utf-16le', 'utf-16be']) {
+      final bytes = codec.encode(sample, encoding: encoding);
+      final decoded = codec.decode(bytes, requestedEncoding: encoding);
+      expect(decoded.hadBom, isFalse);
+      expect(decoded.text, sample);
+    }
   });
 
   test('detects EOL style', () {
