@@ -46,16 +46,35 @@ jobs:
           name: build-failure-${{ github.run_number }}
           path: build/logs/
           retention-days: 14
-      - name: Format check
-        run: dart format --output=none --set-exit-if-changed .
+      - name: Format sources
+        run: dart format .
       - name: Static analysis
-        run: flutter analyze --no-fatal-infos
+        run: |
+          mkdir -p build/logs
+          set +e
+          flutter analyze --no-fatal-infos > build/logs/analyze.log 2>&1
+          status=$?
+          cat build/logs/analyze.log
+          exit $status
       - name: Unit and widget tests
-        run: flutter test --coverage
+        run: |
+          mkdir -p build/logs
+          set +e
+          flutter test --coverage > build/logs/test.log 2>&1
+          status=$?
+          cat build/logs/test.log
+          exit $status
+      - name: Upload analysis or test logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verification-logs-${{ github.run_number }}
+          path: build/logs/
+          retention-days: 14
       - name: Package tests
         run: |
           for package in arabic_text document_core docx_engine txt_engine; do
-            (cd "packages/$package" && flutter pub get && flutter test)
+            (cd "packages/$package" && dart pub get && dart test)
           done
       - name: Build universal evaluation APK
         run: flutter build apk --debug

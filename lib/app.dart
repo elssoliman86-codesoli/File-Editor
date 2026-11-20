@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:material_ui/material_ui.dart' as mui;
 
 import 'core/providers/app_providers.dart';
 import 'core/router/app_router.dart';
@@ -30,8 +29,6 @@ class MidadApp extends ConsumerWidget {
         GlobalCupertinoLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         FlutterQuillLocalizations.delegate,
-        mui.GlobalMaterialLocalizations.delegate,
-        mui.GlobalWidgetsLocalizations.delegate,
       ],
       theme: AppTheme.light(settings.highContrast),
       darkTheme: AppTheme.dark(settings.amoled, settings.highContrast),
