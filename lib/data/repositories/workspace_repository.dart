@@ -99,14 +99,7 @@ class WorkspaceRepository {
       if (length != null && length > limit) {
         throw const DocumentFailure('File exceeds the 64 MB import limit.');
       }
-      final Uint8List bytes;
-      try {
-        bytes = await file.readAsBytes();
-      } on Object {
-        final path = file.path;
-        if (path == null) rethrow;
-        bytes = await File(path).readAsBytes();
-      }
+      final bytes = await _readPicked(file);
       if (bytes.length > limit) {
         throw const DocumentFailure('File exceeds the 64 MB import limit.');
       }
@@ -116,7 +109,13 @@ class WorkspaceRepository {
       );
       if (kind == DocumentKind.unknown) continue;
       records.add(
-        await importBytes(file.name, bytes, sourceUri: file.identifier),
+        await importBytes(
+          file.name,
+          bytes,
+          // Only a content:// URI identifies the original document. The picker
+          // otherwise hands back a private cache copy, which is not the source.
+          sourceUri: file.uri.scheme == 'content' ? file.uri.toString() : null,
+        ),
       );
     }
     return records;
@@ -342,6 +341,18 @@ class WorkspaceRepository {
     DocumentKind.txt => 'content.utf8.txt',
     _ => 'content.${kind.defaultExtension}',
   };
+}
+
+/// Reads a picked file. The platform stream is preferred; if it fails and the
+/// pick exposes a real file path, fall back to reading that path directly.
+Future<Uint8List> _readPicked(PlatformFile file) async {
+  try {
+    return await file.readAsBytes();
+  } on Object {
+    final path = file.path;
+    if (path == null) rethrow;
+    return File(path).readAsBytes();
+  }
 }
 
 DocxDocument _openDocx(Uint8List bytes) => const DocxEngine().open(bytes);

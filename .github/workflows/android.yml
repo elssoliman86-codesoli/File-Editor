@@ -52,16 +52,6 @@ jobs:
           name: build-failure-${{ github.run_number }}
           path: build/logs/
           retention-days: 14
-      - name: API probe (TEMPORARY, removed after use)
-        continue-on-error: true
-        run: |
-          C="$PUB_CACHE/hosted/pub.dev"
-          FP="$(ls -d "$C"/file_picker-* | sort -V | tail -n 1)"
-          echo "=== PROBE file_picker.dart 1-120"; sed -n '1,120p' "$FP/lib/src/file_picker.dart"
-          PI="$(ls -d "$C"/file_picker_platform_interface-* | sort -V | tail -n 1)"
-          echo "=== PROBE platform_interface: $PI"
-          F="$(grep -rl "class PlatformFile" "$PI/lib" | head -n 1)"; echo "file: $F"
-          grep -nE "^\s*(final |late |Future<|Stream<|Uint8List|String|int |bool |static |factory |const )" "$F" | head -50
       - name: Auto-format (TEMPORARY one-time step, removed after the commit)
         if: github.ref == 'refs/heads/fix/apk-build-root-cause'
         run: |
