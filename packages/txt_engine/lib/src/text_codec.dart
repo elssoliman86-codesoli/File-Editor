@@ -23,16 +23,22 @@ class TextCodec {
     switch (encoding) {
       case 'utf-16le':
         text = _decodeUtf16(data, Endian.little);
+        break;
       case 'utf-16be':
         text = _decodeUtf16(data, Endian.big);
+        break;
       case 'windows-1256':
         text = const Windows1256Codec().decode(data);
+        break;
       case 'iso-8859-6':
         text = const Iso88596Codec().decode(data);
+        break;
       case 'windows-1252':
         text = const Windows1252Codec().decode(data);
+        break;
       default:
         text = utf8.decode(data);
+        break;
     }
     return DecodedText(text, encoding, detectEol(text), _hasBom(bytes));
   }
@@ -49,16 +55,22 @@ class TextCodec {
     switch (encoding) {
       case 'utf-16le':
         content = _encodeUtf16(outputText, Endian.little);
+        break;
       case 'utf-16be':
         content = _encodeUtf16(outputText, Endian.big);
+        break;
       case 'windows-1256':
         content = const Windows1256Codec().encode(outputText);
+        break;
       case 'iso-8859-6':
         content = const Iso88596Codec().encode(outputText);
+        break;
       case 'windows-1252':
         content = const Windows1252Codec().encode(outputText);
+        break;
       default:
         content = utf8.encode(outputText);
+        break;
     }
     return Uint8List.fromList([...?_bom(encoding, bom), ...content]);
   }
