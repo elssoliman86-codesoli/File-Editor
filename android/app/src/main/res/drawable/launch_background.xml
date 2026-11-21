@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:drawable="@color/launch_background" />
-    <item android:gravity="center" android:width="96dp" android:height="96dp">
-        <bitmap android:src="@mipmap/ic_launcher" />
-    </item>
+    <!-- A <bitmap> cannot load @mipmap/ic_launcher (an XML drawable) and would
+         crash the launch screen, so reference the vector directly. -->
+    <item
+        android:width="96dp"
+        android:height="96dp"
+        android:drawable="@drawable/ic_launcher_foreground"
+        android:gravity="center" />
 </layer-list>

@@ -52,14 +52,6 @@ jobs:
           name: build-failure-${{ github.run_number }}
           path: build/logs/
           retention-days: 14
-      - name: Gradle probe (TEMPORARY, removed after use)
-        continue-on-error: true
-        run: |
-          T="$FLUTTER_ROOT/packages/flutter_tools/templates/app/android-kotlin.tmpl"
-          for f in build.gradle.kts.tmpl app/build.gradle.kts.tmpl; do echo "--- TEMPLATE $f"; cat "$T/$f"; done
-          echo "--- PLUGIN LOADER"
-          find "$FLUTTER_ROOT/packages/flutter_tools/gradle/src/main/kotlin" -name 'PluginHandler.kt' -o -name 'FlutterPlugin.kt' | head
-          grep -n -B6 -A6 'extensions.create("flutter"' "$FLUTTER_ROOT/packages/flutter_tools/gradle/src/main/kotlin/plugins/PluginHandler.kt" | head -50
       - name: Auto-format (TEMPORARY one-time step, removed after the commit)
         if: github.ref == 'refs/heads/fix/apk-build-root-cause'
         run: |

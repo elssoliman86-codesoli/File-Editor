@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Adaptive-icon foreground (108dp canvas, content kept inside the 66dp safe zone):
+     a document sheet with a pencil, in the app's electric blue and cyan. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Sheet with a folded corner -->
+    <path
+        android:fillColor="#F2F5FF"
+        android:pathData="M38,30 L61,30 L72,41 L72,78 Q72,80 70,80 L38,80 Q36,80 36,78 L36,32 Q36,30 38,30 Z" />
+    <path
+        android:fillColor="#A8B3CF"
+        android:pathData="M61,30 L72,41 L63,41 Q61,41 61,39 Z" />
+    <!-- Text lines -->
+    <path
+        android:fillColor="#2F7BFF"
+        android:pathData="M42,50 h24 v3 h-24 z M42,58 h24 v3 h-24 z M42,66 h14 v3 h-14 z" />
+    <!-- Pencil -->
+    <path
+        android:fillColor="#31D4FF"
+        android:pathData="M54,84 L55.41,76.93 L77.17,55.17 L82.83,60.83 L61.07,82.59 Z" />
+</vector>
