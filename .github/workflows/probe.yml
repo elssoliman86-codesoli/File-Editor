@@ -25,14 +25,10 @@ jobs:
           V=$c/pdfrx-3.1.0/lib/src/widgets
           E=$c/pdfrx_engine-0.9.6/lib/src
           M=$c/flutter_markdown_plus-1.0.12/lib/src
-          echo "=== params flags"; grep -nE "panEnabled|scaleEnabled|enableTextSelection|textSelectionParams|interactionEndFrictionCoefficient|minScale|maxScale|boundaryMargin|PdfPageOverlaysBuilder =|PdfViewerOverlaysBuilder =" $V/pdf_viewer_params.dart | cut -c1-200 | head -30
-          echo "=== pageOverlaysBuilder doc"; sed -n 505,548p $V/pdf_viewer_params.dart
-          echo "=== gesture notes"; sed -n 6930,6965p $V/pdf_viewer.dart; sed -n 7068,7100p $V/pdf_viewer.dart
-          echo "=== PdfPage"; grep -nE "^\s+(final|double|int|Future|bool|PdfPageRotation|Size|Rect|abstract|class|static)[^;{]*(width|height|rotation|pageNumber|render|document|size|get )" $E/pdf_page.dart | cut -c1-180 | head -30
-          echo "=== PdfDocument"; grep -nE "createNew|createFromJpegData|set pages|encodePdf|static Future<PdfDocument> open|bool get isEncrypted|dispose\(" $E/pdf_document.dart | cut -c1-200
-          sed -n '/static Future<PdfDocument> createFromJpegData/,/;/p' $E/pdf_document.dart | head -20
-          echo "=== viewer controller"; grep -nE "^\s+(Future|bool|PdfDocument|int|Matrix4|double|Rect)[^=]*(useDocument|get document|get isReady|goToPage|get pageNumber|get currentPageNumber|get documentSize|getPageRect|zoom)" $V/pdf_viewer.dart | cut -c1-180 | head -25
-          echo "=== MarkdownWidget ctor"; sed -n '/^abstract class MarkdownWidget/,/^  });/p' $M/widget.dart | grep -E "^\s+(this|required this)\.|const MarkdownWidget" | cut -c1-120
-          sed -n '/^class MarkdownBody/,/^  });/p' $M/widget.dart | head -50
-          echo "=== MarkdownStyleSheet"; grep -nE "^  (factory|MarkdownStyleSheet)" $M/style_sheet.dart | cut -c1-160
-          ls $M
+          P=$c/pdfrx-3.1.0/lib/src
+          echo "=== pdfrx_flutter.dart"; sed -n 40,175p $P/pdfrx_flutter.dart
+          echo "=== pdf_page.dart render"; sed -n 55,110p $E/pdf_page.dart
+          echo "=== pdf_image.dart"; sed -n 1,60p $E/pdf_image.dart
+          echo "=== md export"; cat $c/flutter_markdown_plus-1.0.12/lib/flutter_markdown_plus.dart | grep -v "^//"
+          grep -n "factory MarkdownStyleSheet\|MarkdownStyleSheet copyWith\|textScaler\|textScaleFactor" $c/flutter_markdown_plus-1.0.12/lib/src/style_sheet.dart | head
+          echo "=== PdfTextSelectionParams"; grep -rn "class PdfTextSelectionParams" -A12 $V | head -30

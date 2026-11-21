@@ -2,6 +2,7 @@ enum DocumentKind {
   docx,
   pdf,
   txt,
+  markdown,
   image,
   unknown;
 
@@ -24,8 +25,8 @@ enum DocumentKind {
     return switch (extension) {
       'docx' || 'dotx' || 'docm' => DocumentKind.docx,
       'pdf' => DocumentKind.pdf,
+      'md' || 'markdown' || 'mdown' => DocumentKind.markdown,
       'txt' ||
-      'md' ||
       'json' ||
       'xml' ||
       'html' ||
@@ -36,10 +37,14 @@ enum DocumentKind {
     };
   }
 
+  /// Plain-text based kinds share the text codec and the text payload.
+  bool get isTextBased => this == txt || this == markdown;
+
   String get defaultExtension => switch (this) {
     DocumentKind.docx => 'docx',
     DocumentKind.pdf => 'pdf',
     DocumentKind.txt => 'txt',
+    DocumentKind.markdown => 'md',
     DocumentKind.image => 'png',
     DocumentKind.unknown => 'bin',
   };
@@ -49,6 +54,7 @@ enum DocumentKind {
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     DocumentKind.pdf => 'application/pdf',
     DocumentKind.txt => 'text/plain',
+    DocumentKind.markdown => 'text/markdown',
     DocumentKind.image => 'image/*',
     DocumentKind.unknown => 'application/octet-stream',
   };
