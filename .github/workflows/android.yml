@@ -117,6 +117,31 @@ jobs:
           path: coverage/lcov.info
           retention-days: 30
 
+  emulator-smoke:
+    needs: verify-and-build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: midad-apk-*
+          path: artifacts
+          merge-multiple: true
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Install and exercise the release APK on an emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          script: bash tools/smoke_test.sh artifacts/app-x86_64-release.apk
+
   publish-release:
     if: startsWith(github.ref, 'refs/tags/v') && github.event_name == 'push'
     needs: verify-and-build
