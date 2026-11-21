@@ -20,5 +20,14 @@ subprojects {
     project.evaluationDependsOn(":app")
 }
 
+subprojects {
+    // The release-time "lint vital" check crashes inside Android Lint itself
+    // (NoSuchMethodError in its Java doc parser) on some plugin sources, e.g.
+    // image_picker_android. It only duplicates `flutter analyze`, so skip it.
+    tasks.configureEach {
+        if (name.startsWith("lintVital")) enabled = false
+    }
+}
+
 // AGP uses this file to remove stale build metadata.
 tasks.register<Delete>("clean") { delete(buildDirectory) }
