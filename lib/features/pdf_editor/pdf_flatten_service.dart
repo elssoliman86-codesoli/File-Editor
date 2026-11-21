@@ -126,7 +126,7 @@ class PdfAnnotationWriter {
         pixelWidth,
         pixelHeight,
       );
-      return PdfDocument.createFromJpegData(
+      return await PdfDocument.createFromJpegData(
         jpeg,
         width: page.width,
         height: page.height,
