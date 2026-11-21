@@ -64,7 +64,11 @@ class PdfEditToolbar extends StatelessWidget {
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     children: [
-                      tool(MarkTool.hand, Icons.pan_tool_alt_outlined, 'toolHand'),
+                      tool(
+                        MarkTool.hand,
+                        Icons.pan_tool_alt_outlined,
+                        'toolHand',
+                      ),
                       tool(MarkTool.move, Icons.open_with_rounded, 'toolMove'),
                       tool(MarkTool.pen, Icons.edit_rounded, 'toolPen'),
                       tool(
@@ -72,7 +76,11 @@ class PdfEditToolbar extends StatelessWidget {
                         Icons.highlight_rounded,
                         'toolHighlighter',
                       ),
-                      tool(MarkTool.text, Icons.text_fields_rounded, 'toolText'),
+                      tool(
+                        MarkTool.text,
+                        Icons.text_fields_rounded,
+                        'toolText',
+                      ),
                       tool(
                         MarkTool.rectangle,
                         Icons.crop_square_rounded,
@@ -83,7 +91,11 @@ class PdfEditToolbar extends StatelessWidget {
                         Icons.circle_outlined,
                         'toolEllipse',
                       ),
-                      tool(MarkTool.line, Icons.horizontal_rule_rounded, 'toolLine'),
+                      tool(
+                        MarkTool.line,
+                        Icons.horizontal_rule_rounded,
+                        'toolLine',
+                      ),
                       tool(
                         MarkTool.arrow,
                         Icons.arrow_right_alt_rounded,
@@ -182,7 +194,9 @@ Future<({String text, double size})?> showTextMarkDialog(
               autofocus: true,
               minLines: 1,
               maxLines: 5,
-              decoration: InputDecoration(hintText: context.l10n.t('textMarkHint')),
+              decoration: InputDecoration(
+                hintText: context.l10n.t('textMarkHint'),
+              ),
             ),
             const SizedBox(height: 12),
             Row(
@@ -270,9 +284,9 @@ class _SignatureDialogState extends State<_SignatureDialog> {
                       setState(() => _strokes.last.add(details.localPosition)),
                   child: CustomPaint(
                     size: Size(_width, _padHeight),
-                    painter: _PadPainter(
-                      [for (final s in _strokes) List<Offset>.of(s)],
-                    ),
+                    painter: _PadPainter([
+                      for (final s in _strokes) List<Offset>.of(s),
+                    ]),
                   ),
                 ),
               ),

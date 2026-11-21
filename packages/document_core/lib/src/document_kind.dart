@@ -26,12 +26,7 @@ enum DocumentKind {
       'docx' || 'dotx' || 'docm' => DocumentKind.docx,
       'pdf' => DocumentKind.pdf,
       'md' || 'markdown' || 'mdown' => DocumentKind.markdown,
-      'txt' ||
-      'json' ||
-      'xml' ||
-      'html' ||
-      'csv' ||
-      'log' => DocumentKind.txt,
+      'txt' || 'json' || 'xml' || 'html' || 'csv' || 'log' => DocumentKind.txt,
       'jpg' || 'jpeg' || 'png' || 'webp' => DocumentKind.image,
       _ => DocumentKind.unknown,
     };

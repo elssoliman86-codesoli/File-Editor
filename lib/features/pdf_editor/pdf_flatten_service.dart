@@ -118,7 +118,9 @@ class PdfAnnotationWriter {
       final picture = recorder.endRecording();
       composed = await picture.toImage(pixelWidth, pixelHeight);
       picture.dispose();
-      final rgba = await composed.toByteData(format: ui.ImageByteFormat.rawRgba);
+      final rgba = await composed.toByteData(
+        format: ui.ImageByteFormat.rawRgba,
+      );
       final jpeg = await rgbaToJpeg(
         rgba!.buffer.asUint8List(),
         pixelWidth,

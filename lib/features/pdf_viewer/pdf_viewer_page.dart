@@ -115,7 +115,11 @@ class _PdfViewerPageState extends ConsumerState<PdfViewerPage> {
     _outline = await document.loadOutline();
   }
 
-  List<Widget> _pageOverlays(BuildContext context, Rect pageRect, PdfPage page) {
+  List<Widget> _pageOverlays(
+    BuildContext context,
+    Rect pageRect,
+    PdfPage page,
+  ) {
     return [
       Positioned.fill(
         child: PdfPageMarksLayer(
@@ -209,11 +213,9 @@ class _PdfViewerPageState extends ConsumerState<PdfViewerPage> {
         RegExp(r'\.pdf$', caseSensitive: false),
         '',
       );
-      await DocumentExportService(ref.read(storageChannelProvider)).save(
-        name: '$base (edited).pdf',
-        kind: DocumentKind.pdf,
-        bytes: bytes,
-      );
+      await DocumentExportService(
+        ref.read(storageChannelProvider),
+      ).save(name: '$base (edited).pdf', kind: DocumentKind.pdf, bytes: bytes);
       await ref.read(workspaceProvider).markExported(widget.record, bytes);
       if (!mounted) return;
       _store.clear();
@@ -221,9 +223,8 @@ class _PdfViewerPageState extends ConsumerState<PdfViewerPage> {
         _editing = false;
         _revision++;
       });
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(l10n.t('savedVerified'))));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l10n.t('savedVerified'))));
     } catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

@@ -408,9 +408,7 @@ class _TxtEditorPageState extends ConsumerState<TxtEditorPage> {
               .replaceAll('\r', '\n')) {
         throw const FormatException('Text read-back differs from the editor.');
       }
-      await DocumentExportService(
-        ref.read(storageChannelProvider),
-      ).save(
+      await DocumentExportService(ref.read(storageChannelProvider)).save(
         name: _nameController.text,
         kind: widget.record.kind,
         bytes: bytes,

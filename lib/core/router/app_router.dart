@@ -93,7 +93,9 @@ class _DocumentOpenerState extends State<DocumentOpener> {
           );
         }
         if (snapshot.connectionState != ConnectionState.done) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
         }
         final record = snapshot.data;
         if (record == null) {
