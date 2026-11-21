@@ -20,17 +20,19 @@ jobs:
         run: |
           bash tools/fetch_fonts.sh
           flutter pub get > /dev/null
-          flutter pub add flutter_markdown_plus markdown 2>&1 | tail -15 || true
-          grep -nE "^  (pdfrx|pdfrx_engine|pdf|printing|flutter_markdown_plus|markdown|flutter_quill|image):" pubspec.lock -A3 | grep -E "^[0-9]+[:-]  (pdfrx|pdfrx_engine|pdf|printing|flutter_markdown_plus|markdown|flutter_quill|image):|version:" || true
-          cache=$(ls -d $HOME/.pub-cache/hosted/pub.dev 2>/dev/null)
-          echo "CACHE=$cache"
-          for d in $cache/pdfrx-* $cache/pdfrx_engine-*; do
-            echo "=== $d"; ls $d/lib $d/lib/src 2>/dev/null | head -60
-          done
-          echo "=== API grep"
-          grep -rnE "annot|Annot|assemble|encodePdf|pages =|set pages|importPages|Future<PdfImage\?> render|pageOverlaysBuilder|viewerOverlayBuilder|PdfDocument\.open(Data|Asset|File)|loadPagesProgressively|class PdfPageRenderCancellationToken|createFromImage|createFrom" $cache/pdfrx-*/lib $cache/pdfrx_engine-*/lib 2>/dev/null | grep -v "^\s*//" | cut -c1-230 | head -120
-          echo "=== markdown pkg"
-          ls $cache | grep -E "markdown" 
-          grep -rnE "^class (MarkdownBody|Markdown|MarkdownStyleSheet|MarkdownBuilder)\b" $cache/flutter_markdown_plus-*/lib | cut -c1-200
-          sed -n 1,60p $cache/flutter_markdown_plus-*/lib/src/widget.dart | head -5
-          grep -nE "^\s+(this\.|required this\.)" $cache/flutter_markdown_plus-*/lib/src/widget.dart | head -60
+          flutter pub add flutter_markdown_plus markdown > /dev/null 2>&1 || true
+          c=$HOME/.pub-cache/hosted/pub.dev
+          V=$c/pdfrx-3.1.0/lib/src/widgets
+          E=$c/pdfrx_engine-0.9.6/lib/src
+          M=$c/flutter_markdown_plus-1.0.12/lib/src
+          echo "=== params flags"; grep -nE "panEnabled|scaleEnabled|enableTextSelection|textSelectionParams|interactionEndFrictionCoefficient|minScale|maxScale|boundaryMargin|PdfPageOverlaysBuilder =|PdfViewerOverlaysBuilder =" $V/pdf_viewer_params.dart | cut -c1-200 | head -30
+          echo "=== pageOverlaysBuilder doc"; sed -n 505,548p $V/pdf_viewer_params.dart
+          echo "=== gesture notes"; sed -n 6930,6965p $V/pdf_viewer.dart; sed -n 7068,7100p $V/pdf_viewer.dart
+          echo "=== PdfPage"; grep -nE "^\s+(final|double|int|Future|bool|PdfPageRotation|Size|Rect|abstract|class|static)[^;{]*(width|height|rotation|pageNumber|render|document|size|get )" $E/pdf_page.dart | cut -c1-180 | head -30
+          echo "=== PdfDocument"; grep -nE "createNew|createFromJpegData|set pages|encodePdf|static Future<PdfDocument> open|bool get isEncrypted|dispose\(" $E/pdf_document.dart | cut -c1-200
+          sed -n '/static Future<PdfDocument> createFromJpegData/,/;/p' $E/pdf_document.dart | head -20
+          echo "=== viewer controller"; grep -nE "^\s+(Future|bool|PdfDocument|int|Matrix4|double|Rect)[^=]*(useDocument|get document|get isReady|goToPage|get pageNumber|get currentPageNumber|get documentSize|getPageRect|zoom)" $V/pdf_viewer.dart | cut -c1-180 | head -25
+          echo "=== MarkdownWidget ctor"; sed -n '/^abstract class MarkdownWidget/,/^  });/p' $M/widget.dart | grep -E "^\s+(this|required this)\.|const MarkdownWidget" | cut -c1-120
+          sed -n '/^class MarkdownBody/,/^  });/p' $M/widget.dart | head -50
+          echo "=== MarkdownStyleSheet"; grep -nE "^  (factory|MarkdownStyleSheet)" $M/style_sheet.dart | cut -c1-160
+          ls $M
