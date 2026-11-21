@@ -8,7 +8,9 @@ allprojects {
 val buildDirectory = layout.buildDirectory
 rootProject.layout.buildDirectory.value(rootProject.layout.projectDirectory.dir("../build"))
 subprojects {
-    layout.buildDirectory.value(rootProject.layout.buildDirectory.get().dir("project/$name"))
+    // Flutter looks for the APK at <repo>/build/app/outputs/flutter-apk, so each
+    // subproject must build into <repo>/build/<name> (no extra directory level).
+    layout.buildDirectory.value(rootProject.layout.buildDirectory.get().dir(name))
 }
 
 subprojects {
