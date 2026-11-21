@@ -12,6 +12,7 @@ if [ -z "$(adb shell pidof "$PKG")" ]; then
   echo "::error::app is not running after launch"; adb logcat -d | tail -80; exit 1
 fi
 python3 tools/ui_dump.py "after launch"
+(cd tools && python3 ui_flow.py) || { echo "::error::UI flow failed"; fail=1; }
 adb logcat -d > /tmp/logcat.txt
 if grep -E "FATAL EXCEPTION|Fatal signal" /tmp/logcat.txt; then
   echo "::error::native or Java crash detected"; fail=1
