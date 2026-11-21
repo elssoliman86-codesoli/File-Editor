@@ -35,6 +35,9 @@ class _RichEditorPageState extends ConsumerState<RichEditorPage> {
   final _nameController = TextEditingController();
   EditorSession? _session;
   Timer? _autosave;
+  Timer? _statsTimer;
+  Timer? _renameTimer;
+  final _stats = ValueNotifier<TextStatistics>(TextStatistics.from(''));
   Object? _loadError;
   bool _searchVisible = false;
   bool _dirty = false;
@@ -56,6 +59,7 @@ class _RichEditorPageState extends ConsumerState<RichEditorPage> {
       if (!mounted) return;
       _session = session;
       _controller.document = Document.fromJson(session.operations);
+      _stats.value = TextStatistics.from(_controller.document.toPlainText());
       _controller.addListener(_onEdit);
       setState(() {});
       _scheduleAutosave();
@@ -66,6 +70,13 @@ class _RichEditorPageState extends ConsumerState<RichEditorPage> {
 
   void _onEdit() {
     if (!_dirty && mounted) setState(() => _dirty = true);
+    // Word/character counts are recomputed when typing pauses, not per key.
+    _statsTimer?.cancel();
+    _statsTimer = Timer(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        _stats.value = TextStatistics.from(_controller.document.toPlainText());
+      }
+    });
     _scheduleAutosave();
   }
 
@@ -92,6 +103,13 @@ class _RichEditorPageState extends ConsumerState<RichEditorPage> {
   @override
   void dispose() {
     _autosave?.cancel();
+    _statsTimer?.cancel();
+    if (_renameTimer?.isActive ?? false) {
+      _renameTimer!.cancel();
+      unawaited(
+        ref.read(workspaceProvider).rename(widget.record, _nameController.text),
+      );
+    }
     if (_session != null) {
       unawaited(
         ref
@@ -103,6 +121,7 @@ class _RichEditorPageState extends ConsumerState<RichEditorPage> {
     _focusNode.dispose();
     _scrollController.dispose();
     _nameController.dispose();
+    _stats.dispose();
     super.dispose();
   }
 
@@ -122,7 +141,6 @@ class _RichEditorPageState extends ConsumerState<RichEditorPage> {
     }
     if (_session == null)
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    final stats = TextStatistics.from(_controller.document.toPlainText());
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) async {
@@ -142,9 +160,15 @@ class _RichEditorPageState extends ConsumerState<RichEditorPage> {
               isDense: true,
             ),
             style: const TextStyle(fontWeight: FontWeight.w700),
-            onChanged: (_) => ref
-                .read(workspaceProvider)
-                .rename(widget.record, _nameController.text),
+            onChanged: (_) {
+              _renameTimer?.cancel();
+              _renameTimer = Timer(
+                const Duration(milliseconds: 600),
+                () => ref
+                    .read(workspaceProvider)
+                    .rename(widget.record, _nameController.text),
+              );
+            },
           ),
           actions: [
             IconButton(
@@ -201,10 +225,10 @@ class _RichEditorPageState extends ConsumerState<RichEditorPage> {
                       ? const Color(0xFF111827)
                       : const Color(0xFFE9EDF5),
                   alignment: Alignment.topCenter,
-                  child: SingleChildScrollView(
+                  child: Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 12,
-                      vertical: 18,
+                      vertical: 12,
                     ),
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 820),
@@ -223,8 +247,7 @@ class _RichEditorPageState extends ConsumerState<RichEditorPage> {
                             scrollController: _scrollController,
                             config: QuillEditorConfig(
                               scrollable: true,
-                              expands: false,
-                              minHeight: 720,
+                              expands: true,
                               maxContentWidth: 760,
                               padding: const EdgeInsets.all(28),
                               placeholder: l10n.t('selectTemplate'),
@@ -298,9 +321,12 @@ class _RichEditorPageState extends ConsumerState<RichEditorPage> {
                             icon: const Icon(Icons.insert_page_break_outlined),
                           ),
                           const Spacer(),
-                          Text(
-                            '${stats.words} ${l10n.t('words')} · ${stats.characters} ${l10n.t('characters')}',
-                            style: Theme.of(context).textTheme.bodySmall,
+                          ValueListenableBuilder<TextStatistics>(
+                            valueListenable: _stats,
+                            builder: (context, stats, _) => Text(
+                              '${stats.words} ${l10n.t('words')} · ${stats.characters} ${l10n.t('characters')}',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
                           ),
                         ],
                       ),

@@ -6,3 +6,7 @@
 -keep class com.elssoliman.midad.** { *; }
 -keepattributes *Annotation*
 -dontwarn org.bouncycastle.**
+-dontwarn com.google.android.play.core.**
+-dontwarn javax.annotation.**
+-dontwarn org.conscrypt.**
+-dontwarn org.openjsse.**

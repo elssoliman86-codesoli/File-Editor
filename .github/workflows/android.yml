@@ -3,6 +3,7 @@ name: analyze-test-apk
 on:
   push:
     branches: ['**']
+    tags: ['v*']
   pull_request:
   workflow_dispatch:
 
@@ -47,6 +48,17 @@ jobs:
           name: build-failure-${{ github.run_number }}
           path: build/logs/
           retention-days: 14
+      - name: Auto-format (TEMPORARY, removed once the tree is formatted)
+        if: github.ref == 'refs/heads/fix/apk-build-root-cause'
+        run: |
+          dart format .
+          if ! git diff --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -u
+            git commit -m "style: apply dart format"
+            git push origin HEAD:fix/apk-build-root-cause
+          fi
       - name: Format check
         run: dart format --output=none --set-exit-if-changed .
       - name: Static analysis
@@ -62,15 +74,34 @@ jobs:
               echo "::warning title=No tests::packages/$package has no test/ directory"
             fi
           done
-      - name: Build universal evaluation APK
-        run: flutter build apk --debug
-      - name: Build ABI APKs
-        run: flutter build apk --debug --split-per-abi
+      # Release (AOT, minified) builds. Debug builds run in the JIT with
+      # assertions on and are several times slower on a phone, which is what made
+      # the app hang. Signing: the committed evaluation key unless MIDAD_KEYSTORE_*
+      # secrets are provided (see docs/BUILD.md).
+      - name: Prepare private signing key (only when secrets exist)
+        env:
+          KEYSTORE_B64: ${{ secrets.MIDAD_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/midad-release.jks"
+            echo "MIDAD_KEYSTORE_FILE=$RUNNER_TEMP/midad-release.jks" >> "$GITHUB_ENV"
+            echo "MIDAD_KEYSTORE_PASSWORD=${{ secrets.MIDAD_KEYSTORE_PASSWORD }}" >> "$GITHUB_ENV"
+            echo "MIDAD_KEY_ALIAS=${{ secrets.MIDAD_KEY_ALIAS }}" >> "$GITHUB_ENV"
+            echo "MIDAD_KEY_PASSWORD=${{ secrets.MIDAD_KEY_PASSWORD }}" >> "$GITHUB_ENV"
+          else
+            echo "No private keystore secret; using the committed evaluation key."
+          fi
+      - name: Build universal release APK
+        run: flutter build apk --release
+      - name: Build ABI release APKs
+        run: flutter build apk --release --split-per-abi
       - name: Verify APK signatures
         run: |
           APKSIGNER="$(ls -d "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -n 1)"
           echo "Using $APKSIGNER"
-          "$APKSIGNER" verify --verbose build/app/outputs/flutter-apk/app-debug.apk
+          for apk in build/app/outputs/flutter-apk/*.apk; do
+            "$APKSIGNER" verify --verbose "$apk" | head -n 3
+          done
           sha256sum build/app/outputs/flutter-apk/*.apk > build/app/outputs/flutter-apk/SHA256SUMS.txt
           ls -lh build/app/outputs/flutter-apk/
       - uses: actions/upload-artifact@v4
@@ -86,8 +117,8 @@ jobs:
           path: coverage/lcov.info
           retention-days: 30
 
-  release-evaluation:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+  publish-release:
+    if: startsWith(github.ref, 'refs/tags/v') && github.event_name == 'push'
     needs: verify-and-build
     runs-on: ubuntu-latest
     steps:
@@ -96,12 +127,33 @@ jobs:
           pattern: midad-apk-*
           path: artifacts
           merge-multiple: true
+      - name: Name the files for download
+        run: |
+          mkdir -p dist
+          for f in artifacts/*.apk; do
+            case "$f" in
+              */app-release.apk) kind=universal ;;
+              */app-arm64-v8a-release.apk) kind=arm64-v8a ;;
+              */app-armeabi-v7a-release.apk) kind=armeabi-v7a ;;
+              */app-x86_64-release.apk) kind=x86_64 ;;
+              *) continue ;;
+            esac
+            cp "$f" "dist/Midad-${GITHUB_REF_NAME}-${kind}.apk"
+          done
+          (cd dist && sha256sum *.apk > SHA256SUMS.txt)
+          ls -lh dist
       - uses: softprops/action-gh-release@v2
         with:
-          tag_name: v0.1.0-evaluation
-          name: Midad 0.1.0 — evaluation build
+          name: Midad ${{ github.ref_name }}
           body: |
-            Debug-signed evaluation APKs built by GitHub Actions after format, static analysis and tests.
-            These are not production-signed Google Play releases. See docs/FEATURE_REPORT.md and docs/KNOWN_LIMITATIONS.md.
-          files: artifacts/*
+            ## تحميل التطبيق / Download
+
+            - **أغلب الهواتف الحديثة / most modern phones:** `Midad-${{ github.ref_name }}-arm64-v8a.apk`
+            - **أي جهاز / any device:** `Midad-${{ github.ref_name }}-universal.apk` (أكبر حجماً / larger)
+
+            هذه نسخة **Release** سريعة (AOT) وليست نسخة تطوير. موقّعة بمفتاح تقييم ثابت، فيمكن تحديثها فوق النسخة السابقة مباشرة.
+            This is an optimised **release** build (not a debug build), signed with a stable evaluation key so it installs over the previous release.
+
+            Built by GitHub Actions after format, static analysis and tests. `SHA256SUMS.txt` lists the checksums.
+          files: dist/*
           make_latest: true

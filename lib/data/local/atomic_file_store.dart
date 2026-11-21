@@ -7,10 +7,23 @@ import 'package:path/path.dart' as p;
 class AtomicFileStore {
   const AtomicFileStore();
 
-  Future<String> write(File target, List<int> bytes) async {
+  /// Writes [bytes] atomically (temp file, then rename).
+  ///
+  /// With [verify] the temp file is read back and hashed before the swap; that
+  /// is right for user-visible saves. Autosave/recovery writes pass `false`:
+  /// reading back and hashing a large document on every pause froze the UI.
+  Future<String> write(
+    File target,
+    List<int> bytes, {
+    bool verify = true,
+  }) async {
     await target.parent.create(recursive: true);
     final temp = File('${target.path}.tmp');
     await temp.writeAsBytes(bytes, flush: true);
+    if (!verify) {
+      await temp.rename(target.path);
+      return '';
+    }
     final check = await temp.readAsBytes();
     if (check.length != bytes.length ||
         sha256.convert(check) != sha256.convert(bytes)) {

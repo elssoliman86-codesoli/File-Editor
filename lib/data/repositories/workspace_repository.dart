@@ -143,7 +143,7 @@ class WorkspaceRepository {
     if (kind == DocumentKind.docx) {
       final doc = await compute(_openDocx, Uint8List.fromList(bytes));
       await _files.write(payload, utf8.encode(jsonEncode(doc.operations)));
-    } else if (kind == DocumentKind.txt) {
+    } else if (kind.isTextBased) {
       final decoded = _codec.decode(bytes);
       text = decoded.text;
       encoding = decoded.encoding;
@@ -261,7 +261,7 @@ class WorkspaceRepository {
     final bytes = record.kind == DocumentKind.docx
         ? utf8.encode(jsonEncode(operations ?? const []))
         : utf8.encode(text ?? '');
-    await _files.write(File(record.payloadPath), bytes);
+    await _files.write(File(record.payloadPath), bytes, verify: false);
     await _upsert(
       record.copyWith(
         updatedAt: DateTime.now().millisecondsSinceEpoch,
@@ -338,7 +338,7 @@ class WorkspaceRepository {
 
   String _payloadName(DocumentKind kind) => switch (kind) {
     DocumentKind.docx => 'content.delta.json',
-    DocumentKind.txt => 'content.utf8.txt',
+    DocumentKind.txt || DocumentKind.markdown => 'content.utf8.txt',
     _ => 'content.${kind.defaultExtension}',
   };
 }

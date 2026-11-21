@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-
 import '../../l10n/app_localizations.dart';
 import '../documents/documents_page.dart';
 import '../onboarding/onboarding_page.dart';
@@ -18,31 +16,35 @@ class HomeShell extends StatefulWidget {
 
 class _HomeShellState extends State<HomeShell> {
   late int _index = widget.initialIndex;
+  // Tabs are built the first time they are opened and then kept alive, so the
+  // shell no longer constructs all four pages (and their providers) up front.
+  late final Set<int> _visited = {widget.initialIndex};
+
+  Widget _pageFor(int index) => switch (index) {
+    0 => const HomePage(),
+    1 => const DocumentsPage(),
+    2 => const PdfToolsPage(),
+    _ => const SettingsPage(),
+  };
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final pages = [
-      const HomePage(),
-      const DocumentsPage(),
-      const PdfToolsPage(),
-      const SettingsPage(),
-    ];
     return Scaffold(
-      body: IndexedStack(index: _index, children: pages),
+      body: IndexedStack(
+        index: _index,
+        children: [
+          for (var i = 0; i < 4; i++)
+            if (_visited.contains(i)) _pageFor(i) else const SizedBox.shrink(),
+        ],
+      ),
       bottomNavigationBar: SafeArea(
         child: NavigationBar(
           selectedIndex: _index,
-          onDestinationSelected: (index) {
-            setState(() => _index = index);
-            final path = [
-              '/home',
-              '/documents',
-              '/pdf-tools',
-              '/settings',
-            ][index];
-            if (GoRouterState.of(context).uri.path != path) context.go(path);
-          },
+          onDestinationSelected: (index) => setState(() {
+            _index = index;
+            _visited.add(index);
+          }),
           destinations: [
             NavigationDestination(
               icon: const Icon(Icons.home_outlined),

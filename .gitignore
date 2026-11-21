@@ -11,3 +11,6 @@ android/key.properties
 *.keystore
 *.iml
 .DS_Store
+
+# Public evaluation signing key (not a production key); see docs/BUILD.md.
+!android/app/keystore/midad-evaluation.jks

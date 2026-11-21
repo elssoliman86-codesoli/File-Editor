@@ -25,9 +25,26 @@ android {
         applicationId = "com.elssoliman.midad"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
         multiDexEnabled = true
+    }
+
+    signingConfigs {
+        create("evaluation") {
+            storeFile = file("keystore/midad-evaluation.jks")
+            storePassword = "midad-evaluation"
+            keyAlias = "midad-evaluation"
+            keyPassword = "midad-evaluation"
+        }
+        if (!System.getenv("MIDAD_KEYSTORE_FILE").isNullOrBlank()) {
+            create("release") {
+                storeFile = file(System.getenv("MIDAD_KEYSTORE_FILE"))
+                storePassword = System.getenv("MIDAD_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("MIDAD_KEY_ALIAS")
+                keyPassword = System.getenv("MIDAD_KEY_PASSWORD")
+            }
+        }
     }
 
     buildTypes {
@@ -36,14 +53,16 @@ android {
             versionNameSuffix = "-debug"
         }
         release {
-            if (providers.gradleProperty("midadEvaluationSigning").orNull == "true") {
-                signingConfig = signingConfigs.getByName("debug")
-            }
+            // Signing: private credentials from the environment win (CI secrets or a
+            // local shell); otherwise the committed *evaluation* key is used so every
+            // build is signed with the same key and can be installed over the last one.
+            // The evaluation key is public by design and is not a production key.
+            signingConfig = signingConfigs.getByName(
+                if (System.getenv("MIDAD_KEYSTORE_FILE").isNullOrBlank()) "evaluation" else "release",
+            )
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            // Deliberately no signing credentials in source control. CI supplies a
-            // debug/evaluation signing config only when explicitly requested.
         }
     }
 

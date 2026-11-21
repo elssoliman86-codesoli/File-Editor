@@ -27,12 +27,14 @@ class DocumentTile extends StatelessWidget {
       DocumentKind.pdf => const Color(0xFFFF6B6B),
       DocumentKind.docx => const Color(0xFF5C9DFF),
       DocumentKind.txt => const Color(0xFF2ECC8F),
+      DocumentKind.markdown => const Color(0xFF9B7BFF),
       _ => const Color(0xFFFFB020),
     };
     final icon = switch (record.kind) {
       DocumentKind.pdf => Icons.picture_as_pdf_outlined,
       DocumentKind.docx => Icons.description_outlined,
       DocumentKind.txt => Icons.notes_rounded,
+      DocumentKind.markdown => Icons.code_rounded,
       _ => Icons.image_outlined,
     };
     final date = DateFormat.yMMMd(Localizations.localeOf(context).languageCode)

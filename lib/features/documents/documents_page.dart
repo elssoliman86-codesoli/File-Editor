@@ -100,6 +100,15 @@ class _DocumentsPageState extends ConsumerState<DocumentsPage> {
                           : DocumentKind.txt,
                     ),
                   ),
+                  _chip(
+                    'MD',
+                    _filter == DocumentKind.markdown,
+                    () => setState(
+                      () => _filter = _filter == DocumentKind.markdown
+                          ? null
+                          : DocumentKind.markdown,
+                    ),
+                  ),
                 ],
               ),
             ),

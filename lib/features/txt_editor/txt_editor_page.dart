@@ -13,6 +13,7 @@ import '../../core/services/document_export_service.dart';
 import '../../data/models/document_record.dart';
 import '../../data/models/editor_session.dart';
 import '../../l10n/app_localizations.dart';
+import '../../shared/widgets/markdown_preview.dart';
 import '../../shared/widgets/search_replace_bar.dart';
 
 class TxtEditorPage extends ConsumerStatefulWidget {
@@ -30,6 +31,10 @@ class _TxtEditorPageState extends ConsumerState<TxtEditorPage> {
   final _history = _TextHistory();
   EditorSession? _session;
   Timer? _autosave;
+  Timer? _statsTimer;
+  Timer? _renameTimer;
+  final _stats = ValueNotifier<TextStatistics>(TextStatistics.from(''));
+  bool _preview = false;
   Object? _loadError;
   String _encoding = 'utf-8';
   String _eol = '\n';
@@ -40,6 +45,8 @@ class _TxtEditorPageState extends ConsumerState<TxtEditorPage> {
   bool _dirty = false;
   bool _saving = false;
   int _historyVersion = 0;
+
+  bool get _isMarkdown => widget.record.kind == DocumentKind.markdown;
 
   @override
   void initState() {
@@ -59,6 +66,10 @@ class _TxtEditorPageState extends ConsumerState<TxtEditorPage> {
       _encoding = session.record.encoding;
       _eol = session.record.eol;
       _history.reset(session.text);
+      _stats.value = TextStatistics.from(session.text);
+      // An existing Markdown file opens rendered; a brand-new one opens for editing.
+      _preview =
+          _isMarkdown && !widget.record.dirty && session.text.trim().isNotEmpty;
       _textController.addListener(_onEdit);
       setState(() {});
       _schedule();
@@ -70,6 +81,11 @@ class _TxtEditorPageState extends ConsumerState<TxtEditorPage> {
   void _onEdit() {
     if (!_dirty) setState(() => _dirty = true);
     _historyVersion++;
+    // Statistics are recomputed once typing pauses instead of on every key.
+    _statsTimer?.cancel();
+    _statsTimer = Timer(const Duration(milliseconds: 400), () {
+      if (mounted) _stats.value = TextStatistics.from(_textController.text);
+    });
     if (_historyVersion % 8 == 0) _history.push(_textController.text);
     _schedule();
   }
@@ -94,10 +110,18 @@ class _TxtEditorPageState extends ConsumerState<TxtEditorPage> {
   @override
   void dispose() {
     _autosave?.cancel();
+    _statsTimer?.cancel();
+    if (_renameTimer?.isActive ?? false) {
+      _renameTimer!.cancel();
+      unawaited(
+        ref.read(workspaceProvider).rename(widget.record, _nameController.text),
+      );
+    }
     if (_session != null) unawaited(_saveRecovery());
     _textController.dispose();
     _scrollController.dispose();
     _nameController.dispose();
+    _stats.dispose();
     super.dispose();
   }
 
@@ -111,7 +135,6 @@ class _TxtEditorPageState extends ConsumerState<TxtEditorPage> {
       );
     if (_session == null)
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    final stats = TextStatistics.from(_textController.text);
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) async {
@@ -141,26 +164,34 @@ class _TxtEditorPageState extends ConsumerState<TxtEditorPage> {
                   isDense: true,
                 ),
                 style: const TextStyle(fontWeight: FontWeight.w700),
-                onChanged: (_) => ref
-                    .read(workspaceProvider)
-                    .rename(widget.record, _nameController.text),
+                onChanged: (_) {
+                  _renameTimer?.cancel();
+                  _renameTimer = Timer(
+                    const Duration(milliseconds: 600),
+                    () => ref
+                        .read(workspaceProvider)
+                        .rename(widget.record, _nameController.text),
+                  );
+                },
               ),
               actions: [
-                IconButton(
-                  tooltip: l10n.t('undo'),
-                  onPressed: _history.canUndo ? _undo : null,
-                  icon: const Icon(Icons.undo_rounded),
-                ),
-                IconButton(
-                  tooltip: l10n.t('redo'),
-                  onPressed: _history.canRedo ? _redo : null,
-                  icon: const Icon(Icons.redo_rounded),
-                ),
-                IconButton(
-                  tooltip: l10n.t('search'),
-                  onPressed: () => setState(() => _search = !_search),
-                  icon: const Icon(Icons.search_rounded),
-                ),
+                if (!_preview) ...[
+                  IconButton(
+                    tooltip: l10n.t('undo'),
+                    onPressed: _history.canUndo ? _undo : null,
+                    icon: const Icon(Icons.undo_rounded),
+                  ),
+                  IconButton(
+                    tooltip: l10n.t('redo'),
+                    onPressed: _history.canRedo ? _redo : null,
+                    icon: const Icon(Icons.redo_rounded),
+                  ),
+                  IconButton(
+                    tooltip: l10n.t('search'),
+                    onPressed: () => setState(() => _search = !_search),
+                    icon: const Icon(Icons.search_rounded),
+                  ),
+                ],
                 IconButton(
                   tooltip: l10n.t('save'),
                   onPressed: _saving ? null : _saveTxt,
@@ -190,7 +221,29 @@ class _TxtEditorPageState extends ConsumerState<TxtEditorPage> {
             body: SafeArea(
               child: Column(
                 children: [
-                  if (_search)
+                  if (_isMarkdown)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+                      child: SegmentedButton<bool>(
+                        showSelectedIcon: false,
+                        segments: [
+                          ButtonSegment(
+                            value: false,
+                            icon: const Icon(Icons.edit_outlined),
+                            label: Text(l10n.t('edit')),
+                          ),
+                          ButtonSegment(
+                            value: true,
+                            icon: const Icon(Icons.visibility_outlined),
+                            label: Text(l10n.t('preview')),
+                          ),
+                        ],
+                        selected: {_preview},
+                        onSelectionChanged: (value) =>
+                            setState(() => _preview = value.first),
+                      ),
+                    ),
+                  if (_search && !_preview)
                     SearchReplaceBar(
                       source: _textController.text,
                       onChanged: (_) {},
@@ -215,7 +268,12 @@ class _TxtEditorPageState extends ConsumerState<TxtEditorPage> {
                       color: Theme.of(context).brightness == Brightness.dark
                           ? const Color(0xFF0D1424)
                           : Colors.white,
-                      child: _wrap
+                      child: _preview
+                          ? MarkdownPreview(
+                              data: _textController.text,
+                              rtl: _rtl,
+                            )
+                          : _wrap
                           ? TextField(
                               controller: _textController,
                               scrollController: _scrollController,
@@ -278,12 +336,15 @@ class _TxtEditorPageState extends ConsumerState<TxtEditorPage> {
                             ),
                     ),
                   ),
-                  _StatusBar(
-                    stats: stats,
-                    encoding: _encoding,
-                    eol: _eol,
-                    onEncoding: _changeEncoding,
-                    onEol: (value) => setState(() => _eol = value),
+                  ValueListenableBuilder<TextStatistics>(
+                    valueListenable: _stats,
+                    builder: (context, stats, _) => _StatusBar(
+                      stats: stats,
+                      encoding: _encoding,
+                      eol: _eol,
+                      onEncoding: _changeEncoding,
+                      onEol: (value) => setState(() => _eol = value),
+                    ),
                   ),
                 ],
               ),
@@ -349,7 +410,11 @@ class _TxtEditorPageState extends ConsumerState<TxtEditorPage> {
       }
       await DocumentExportService(
         ref.read(storageChannelProvider),
-      ).save(name: _nameController.text, kind: DocumentKind.txt, bytes: bytes);
+      ).save(
+        name: _nameController.text,
+        kind: widget.record.kind,
+        bytes: bytes,
+      );
       await ref.read(workspaceProvider).markExported(widget.record, bytes);
       if (mounted) {
         setState(() => _dirty = false);
@@ -385,7 +450,8 @@ class _TxtEditorPageState extends ConsumerState<TxtEditorPage> {
           rtl: _rtl,
         );
         await exporter.save(
-          name: '${_nameController.text.replaceAll(RegExp(r'\.txt$'), '')}.pdf',
+          name:
+              '${_nameController.text.replaceAll(RegExp(r'\.(txt|md)$'), '')}.pdf',
           kind: DocumentKind.pdf,
           bytes: bytes,
         );
@@ -393,7 +459,7 @@ class _TxtEditorPageState extends ConsumerState<TxtEditorPage> {
         await exporter.share(
           _nameController.text,
           await _bytes(),
-          DocumentKind.txt.mimeType,
+          widget.record.kind.mimeType,
         );
       } else if (action == 'print') {
         await exporter.printText(
