@@ -1,0 +1,36 @@
+name: probe-api
+on:
+  push:
+    paths: ['.github/workflows/probe.yml']
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.50.1'
+          channel: stable
+          cache: true
+      - name: Probe packages
+        run: |
+          bash tools/fetch_fonts.sh
+          flutter pub get > /dev/null
+          flutter pub add flutter_markdown_plus markdown 2>&1 | tail -15 || true
+          grep -nE "^  (pdfrx|pdfrx_engine|pdf|printing|flutter_markdown_plus|markdown|flutter_quill|image):" pubspec.lock -A3 | grep -E "^[0-9]+[:-]  (pdfrx|pdfrx_engine|pdf|printing|flutter_markdown_plus|markdown|flutter_quill|image):|version:" || true
+          cache=$(ls -d $HOME/.pub-cache/hosted/pub.dev 2>/dev/null)
+          echo "CACHE=$cache"
+          for d in $cache/pdfrx-* $cache/pdfrx_engine-*; do
+            echo "=== $d"; ls $d/lib $d/lib/src 2>/dev/null | head -60
+          done
+          echo "=== API grep"
+          grep -rnE "annot|Annot|assemble|encodePdf|pages =|set pages|importPages|Future<PdfImage\?> render|pageOverlaysBuilder|viewerOverlayBuilder|PdfDocument\.open(Data|Asset|File)|loadPagesProgressively|class PdfPageRenderCancellationToken|createFromImage|createFrom" $cache/pdfrx-*/lib $cache/pdfrx_engine-*/lib 2>/dev/null | grep -v "^\s*//" | cut -c1-230 | head -120
+          echo "=== markdown pkg"
+          ls $cache | grep -E "markdown" 
+          grep -rnE "^class (MarkdownBody|Markdown|MarkdownStyleSheet|MarkdownBuilder)\b" $cache/flutter_markdown_plus-*/lib | cut -c1-200
+          sed -n 1,60p $cache/flutter_markdown_plus-*/lib/src/widget.dart | head -5
+          grep -nE "^\s+(this\.|required this\.)" $cache/flutter_markdown_plus-*/lib/src/widget.dart | head -60
