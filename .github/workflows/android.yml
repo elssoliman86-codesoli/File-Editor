@@ -40,11 +40,6 @@ jobs:
           for package in arabic_text document_core docx_engine txt_engine; do
             (cd "packages/$package" && dart pub get 2>&1 | tee "../../build/logs/pub-get-$package.log")
           done
-      - name: Print resolved lockfile (commit it for reproducible builds)
-        run: |
-          echo '===== BEGIN pubspec.lock ====='
-          cat pubspec.lock
-          echo '===== END pubspec.lock ====='
       - name: Upload dependency failure log
         if: failure()
         uses: actions/upload-artifact@v4
@@ -52,17 +47,6 @@ jobs:
           name: build-failure-${{ github.run_number }}
           path: build/logs/
           retention-days: 14
-      - name: Auto-format (TEMPORARY one-time step, removed after the commit)
-        if: github.ref == 'refs/heads/fix/apk-build-root-cause'
-        run: |
-          dart format .
-          if ! git diff --quiet; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add -u
-            git commit -m "style: apply dart format to the whole codebase"
-            git push origin HEAD:fix/apk-build-root-cause
-          fi
       - name: Format check
         run: dart format --output=none --set-exit-if-changed .
       - name: Static analysis

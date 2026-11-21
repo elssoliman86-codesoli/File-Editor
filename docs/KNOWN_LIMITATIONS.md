@@ -10,3 +10,6 @@
 8. APKs produced by the default CI workflow are debug-signed evaluation artifacts. AAB and production signing require an owner-provided private key and a release decision.
 9. The application has no production network feature. Debug/profile manifests include Flutter's development INTERNET permission; the main manifest does not request it.
 10. Recovery stores snapshots, not a complete operation-level WAL/version history.
+11. `packages/arabic_text` and `packages/document_core` have no tests yet; CI reports a warning for each instead of failing. Only `docx_engine` (4 tests), `txt_engine` (10) and the app (1 smoke test) are covered.
+12. The app module still applies the Kotlin Gradle Plugin. Flutter 3.50 prints a warning that this will fail in a future release; migrating to AGP built-in Kotlin means dropping `org.jetbrains.kotlin.android` and `android.builtInKotlin=false`, and needs its own verification.
+13. With file_picker 13 the picker returns a private cache copy. Only a `content://` URI is recorded as a document's source, so a picked file is not written back to its original location.
